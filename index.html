@@ -216,6 +216,46 @@
     border-color: var(--accent-gold);
   }
 
+  
+  /* Day selector pills */
+  .day-pills-container {
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 6px;
+    margin-top: 8px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .day-pill {
+    padding: 7px 12px;
+    border-radius: 20px;
+    background: var(--card-inner);
+    border: 1px solid var(--card-border);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: all 0.2s;
+  }
+  .day-pill.active {
+    background: var(--accent-orange);
+    color: #fff;
+    border-color: var(--accent-orange);
+  }
+  .week-banner {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(0, 186, 124, 0.1);
+    border: 1px solid rgba(0, 186, 124, 0.3);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #00ba7c;
+  }
+
   .row-grid-2 {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -600,27 +640,36 @@
     <!-- VIEW 1: EDITOR FORM -->
     <div id="view-editor">
 
-      <!-- Settings Card -->
+      <!-- Weekly Menu & Day Card -->
       <div class="card">
-        <div class="card-header">
-          <span class="card-title">📅 Настройки за деня</span>
+        <div class="week-banner">
+          <span id="week-info-label">🗓️ Меню за текущата седмица</span>
+          <button onclick="clearCurrentWeekPrompt()" style="background: none; border: none; color: #f4212e; font-size: 11px; cursor: pointer; text-decoration: underline;">
+            🗑️ Нова седмица (Изчисти)
+          </button>
         </div>
-        <div class="row-grid-2">
+        <div class="card-header">
+          <span class="card-title">📅 Избери ден за редакция</span>
+        </div>
+        
+        <!-- Day Selector Pills -->
+        <div class="day-pills-container" id="day-pills">
+          <button type="button" class="day-pill active" onclick="selectDay('Понеделник')">Понеделник</button>
+          <button type="button" class="day-pill" onclick="selectDay('Вторник')">Вторник</button>
+          <button type="button" class="day-pill" onclick="selectDay('Сряда')">Сряда</button>
+          <button type="button" class="day-pill" onclick="selectDay('Четвъртък')">Четвъртък</button>
+          <button type="button" class="day-pill" onclick="selectDay('Петък')">Петък</button>
+          <button type="button" class="day-pill" onclick="selectDay('Събота')">Събота</button>
+        </div>
+
+        <div class="row-grid-2" style="margin-top: 10px;">
           <div>
-            <label class="input-label">Ден от седмицата</label>
-            <select id="cfg-day" class="select-input" onchange="renderMenu()">
-              <option value="Понеделник">Понеделник</option>
-              <option value="Вторник">Вторник</option>
-              <option value="Сряда">Сряда</option>
-              <option value="Четвъртък">Четвъртък</option>
-              <option value="Петък">Петък</option>
-              <option value="Събота">Събота</option>
-              <option value="Всеки делничен ден">Всеки делничен ден</option>
-            </select>
+            <label class="input-label">Избран ден</label>
+            <input type="text" id="cfg-day" class="input-text" value="Понеделник" oninput="onDayNameChange(this.value)">
           </div>
           <div>
             <label class="input-label">Работно време</label>
-            <input type="text" id="cfg-time" class="input-text" value="11:30 – 15:30 ч." oninput="renderMenu()">
+            <input type="text" id="cfg-time" class="input-text" value="11:30 – 15:30 ч." oninput="onTimeChange(this.value)">
           </div>
         </div>
       </div>
@@ -789,12 +838,99 @@
     ]
   };
 
-    let menu = JSON.parse(localStorage.getItem('pizza_italia_lunch_menu')) || defaultMenu;
-  if (!menu.mains) {
-    menu.mains = JSON.parse(JSON.stringify(defaultMenu.mains));
+  // --- WEEKLY STORAGE & AUTO-RESET ---
+  function getWeekNumber(d) {
+    d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+    d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+    var yearStart = new Date(Date.UTC(d.getUTCFullYear(),0,1));
+    var weekNo = Math.ceil(( ( (d - yearStart) / 86400000) + 1)/7);
+    return d.getUTCFullYear() + '-W' + weekNo;
+  }
+
+  const currentWeekKey = getWeekNumber(new Date());
+  let savedWeekKey = localStorage.getItem('pizza_italia_week_key');
+  let weeklyData = {};
+
+  try {
+    weeklyData = JSON.parse(localStorage.getItem('pizza_italia_weekly_menus')) || {};
+  } catch(e) {
+    weeklyData = {};
+  }
+
+  // Auto-reset when a new week starts (Monday)
+  if (savedWeekKey && savedWeekKey !== currentWeekKey) {
+    console.log('New week detected (' + currentWeekKey + '). Resetting weekly menu.');
+    weeklyData = {};
+    localStorage.setItem('pizza_italia_weekly_menus', JSON.stringify(weeklyData));
+    localStorage.setItem('pizza_italia_week_key', currentWeekKey);
+  } else if (!savedWeekKey) {
+    localStorage.setItem('pizza_italia_week_key', currentWeekKey);
+  }
+
+  // Active day selection
+  const daysList = ['Понеделник', 'Вторник', 'Сряда', 'Четвъртък', 'Петък', 'Събота'];
+  // Auto-select current day of week if weekday
+  const todayIdx = new Date().getDay(); // 1=Mon, 5=Fri, 6=Sat
+  let currentActiveDay = (todayIdx >= 1 && todayIdx <= 6) ? daysList[todayIdx - 1] : 'Понеделник';
+
+  if (!weeklyData[currentActiveDay]) {
+    // Check old single-day storage or default
+    let oldSingle = JSON.parse(localStorage.getItem('pizza_italia_lunch_menu'));
+    if (oldSingle && oldSingle.soups) {
+      weeklyData[currentActiveDay] = oldSingle;
+    } else {
+      weeklyData[currentActiveDay] = JSON.parse(JSON.stringify(defaultMenu));
+      weeklyData[currentActiveDay].day = currentActiveDay;
+    }
+  }
+
+  let menu = weeklyData[currentActiveDay];
+  if (!menu.mains) menu.mains = JSON.parse(JSON.stringify(defaultMenu.mains));
+
+  function selectDay(dayName) {
+    currentActiveDay = dayName;
+    if (!weeklyData[dayName]) {
+      weeklyData[dayName] = JSON.parse(JSON.stringify(defaultMenu));
+      weeklyData[dayName].day = dayName;
+    }
+    menu = weeklyData[dayName];
+    if (!menu.mains) menu.mains = JSON.parse(JSON.stringify(defaultMenu.mains));
+
+    // Update pill UI
+    document.querySelectorAll('.day-pill').forEach(btn => {
+      btn.classList.toggle('active', btn.innerText === dayName);
+    });
+
+    document.getElementById('cfg-day').value = dayName;
+    saveMenu();
+  }
+
+  function onDayNameChange(val) {
+    menu.day = val;
+    saveMenu();
+  }
+
+  function onTimeChange(val) {
+    menu.time = val;
+    saveMenu();
+  }
+
+  function clearCurrentWeekPrompt() {
+    if (confirm('Сигурни ли сте, че искате да изчистите менютата за тази седмица и да започнете начисто?')) {
+      weeklyData = {};
+      weeklyData[currentActiveDay] = JSON.parse(JSON.stringify(defaultMenu));
+      weeklyData[currentActiveDay].day = currentActiveDay;
+      menu = weeklyData[currentActiveDay];
+      localStorage.setItem('pizza_italia_weekly_menus', JSON.stringify(weeklyData));
+      localStorage.setItem('pizza_italia_lunch_menu', JSON.stringify(menu));
+      renderMenu();
+      alert('Седмичното меню беше нулирано успешно!');
+    }
   }
 
   function saveMenu() {
+    weeklyData[currentActiveDay] = menu;
+    localStorage.setItem('pizza_italia_weekly_menus', JSON.stringify(weeklyData));
     localStorage.setItem('pizza_italia_lunch_menu', JSON.stringify(menu));
     renderMenu();
   }
