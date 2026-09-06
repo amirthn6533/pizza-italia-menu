@@ -671,6 +671,51 @@
     padding-top: 10px !important;
   }
 
+  /* On mobile phones (screen width <= 640px), keep A4 preview clean, proportional & non-overflowing */
+  @media screen and (max-width: 640px) {
+    .format-a4-screen {
+      max-width: 100% !important;
+      padding: 10px 8px !important;
+    }
+    .format-a4-screen .a5-inner-border {
+      padding: 8px 10px !important;
+      gap: 7px !important;
+    }
+    .format-a4-screen .menu-main-title {
+      font-size: 20px !important;
+      letter-spacing: 1.5px !important;
+    }
+    .format-a4-screen .menu-sub-title {
+      font-size: 12px !important;
+    }
+    .format-a4-screen .section-title {
+      font-size: 11.5px !important;
+      margin-bottom: 5px !important;
+    }
+    .format-a4-screen .menu-row {
+      font-size: 11px !important;
+      margin-bottom: 3px !important;
+    }
+    .format-a4-screen .menu-item-name {
+      font-size: 11px !important;
+    }
+    .format-a4-screen .menu-item-grams {
+      font-size: 10px !important;
+      margin-left: 4px !important;
+    }
+    .format-a4-screen .menu-price {
+      font-size: 11.5px !important;
+    }
+    .format-a4-screen .menu-desc-print {
+      font-size: 9.5px !important;
+      margin-bottom: 4px !important;
+    }
+    .format-a4-screen .menu-footer-print {
+      font-size: 9px !important;
+      padding-top: 6px !important;
+    }
+  }
+
   /* --- PRINT STYLES --- */
   @media print {
     body {
