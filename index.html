@@ -422,14 +422,13 @@
     gap: 6px;
   }
 
-  /* PREVIEW CANVAS (A5 Paper) */
+  /* PREVIEW CANVAS & PAPER LAYOUT */
   #preview-container {
     display: none;
     padding: 8px 0;
   }
 
-  
-  /* Paper format toggle styles */
+  /* Paper format toggle toolbar */
   .paper-format-bar {
     display: flex;
     justify-content: space-between;
@@ -440,6 +439,7 @@
     border: 1px solid var(--card-border);
     border-radius: var(--radius-md);
     padding: 8px 12px;
+    transition: max-width 0.2s;
   }
   .format-btn {
     padding: 6px 14px;
@@ -458,41 +458,7 @@
     border-color: var(--accent-orange);
   }
 
-  /* When A4 format is active on screen */
-  .format-a4-screen {
-    max-width: 680px !important;
-    padding: 24px 28px !important;
-  }
-  .format-a4-screen .menu-main-title {
-    font-size: 30px !important;
-  }
-  .format-a4-screen .menu-sub-title {
-    font-size: 16px !important;
-  }
-  .format-a4-screen .section-title {
-    font-size: 14px !important;
-    padding-bottom: 3px !important;
-    margin-bottom: 8px !important;
-  }
-  .format-a4-screen .menu-row {
-    font-size: 13.5px !important;
-    margin-bottom: 4px !important;
-  }
-  .format-a4-screen .menu-item-grams {
-    font-size: 12px !important;
-  }
-  .format-a4-screen .menu-price {
-    font-size: 14.5px !important;
-  }
-  .format-a4-screen .menu-desc-print {
-    font-size: 11.5px !important;
-    margin-bottom: 6px !important;
-  }
-  .format-a4-screen .menu-footer-print {
-    font-size: 11px !important;
-    padding-top: 10px !important;
-  }
-
+  /* The Paper Sheet (Default A5) */
   .a5-paper {
     background: #fff;
     color: #111;
@@ -505,6 +471,7 @@
     position: relative;
     font-family: Georgia, 'Times New Roman', serif;
     box-sizing: border-box;
+    transition: max-width 0.2s, padding 0.2s;
   }
 
   /* Frame */
@@ -580,46 +547,58 @@
     position: relative;
   }
 
+  /* Row & Items Layout: Rock-solid alignment */
   .menu-row {
     display: flex;
     align-items: baseline;
     justify-content: space-between;
-    font-size: 11px;
+    width: 100%;
     margin-bottom: 2px;
     line-height: 1.25;
   }
 
-  .menu-row-left {
-    display: flex;
+  .menu-left-part {
+    display: inline-flex;
     align-items: baseline;
-    flex: 1;
+    flex-shrink: 1;
     min-width: 0;
   }
 
   .menu-item-name {
+    font-size: 11px;
     font-weight: 700;
     color: #000;
+    white-space: normal;
   }
 
   .menu-item-grams {
     font-size: 10px;
     color: #444;
     font-style: italic;
-    margin-left: 4px;
+    margin-left: 5px;
+    white-space: nowrap;
     font-family: Arial, sans-serif;
+    flex-shrink: 0;
   }
 
   .menu-dots {
-    flex: 1;
+    flex: 1 1 auto;
+    min-width: 15px;
     border-bottom: 1px dotted #555;
-    margin: 0 6px 4px;
+    margin: 0 6px 4px 6px;
+  }
+
+  .menu-right-part {
+    flex-shrink: 0;
+    text-align: right;
   }
 
   .menu-price {
     font-weight: 900;
     font-family: Arial, sans-serif;
-    font-size: 12px;
+    font-size: 11.5px;
     white-space: nowrap;
+    color: #000;
   }
 
   .menu-desc-print {
@@ -641,61 +620,28 @@
     line-height: 1.3;
   }
 
-  /* PRINT STYLES */
-  @media print {
-    body {
-      background: #fff !important;
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-    .header, .segmented-control, #view-editor, .bottom-bar {
-      display: none !important;
-    }
-    #preview-container {
-      display: block !important;
-      padding: 0 !important;
-      margin: 0 !important;
-    }
-    
-  /* Paper format toggle styles */
-  .paper-format-bar {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    max-width: 480px;
-    margin: 0 auto 12px;
-    background: var(--card-bg);
-    border: 1px solid var(--card-border);
-    border-radius: var(--radius-md);
-    padding: 8px 12px;
-  }
-  .format-btn {
-    padding: 6px 14px;
-    border-radius: 20px;
-    border: 1px solid var(--card-border);
-    background: var(--card-inner);
-    color: var(--text-muted);
-    font-size: 12px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .format-btn.active {
-    background: var(--accent-orange);
-    color: #fff;
-    border-color: var(--accent-orange);
-  }
-
-  /* When A4 format is active on screen */
+  /* --- A4 ON-SCREEN PREVIEW MODE --- */
   .format-a4-screen {
-    max-width: 680px !important;
-    padding: 24px 28px !important;
+    max-width: 720px !important;
+    padding: 24px !important;
+  }
+  .format-a4-screen .a5-inner-border {
+    padding: 16px 18px !important;
+    gap: 12px !important;
+  }
+  .format-a4-screen .menu-top-label {
+    font-size: 12px !important;
   }
   .format-a4-screen .menu-main-title {
     font-size: 30px !important;
+    letter-spacing: 3px !important;
   }
   .format-a4-screen .menu-sub-title {
     font-size: 16px !important;
+  }
+  .format-a4-screen .menu-meta-badge {
+    font-size: 12px !important;
+    padding: 4px 14px !important;
   }
   .format-a4-screen .section-title {
     font-size: 14px !important;
@@ -706,14 +652,18 @@
     font-size: 13.5px !important;
     margin-bottom: 4px !important;
   }
+  .format-a4-screen .menu-item-name {
+    font-size: 13.5px !important;
+  }
   .format-a4-screen .menu-item-grams {
     font-size: 12px !important;
+    margin-left: 8px !important;
   }
   .format-a4-screen .menu-price {
-    font-size: 14.5px !important;
+    font-size: 14px !important;
   }
   .format-a4-screen .menu-desc-print {
-    font-size: 11.5px !important;
+    font-size: 12px !important;
     margin-bottom: 6px !important;
   }
   .format-a4-screen .menu-footer-print {
@@ -721,20 +671,87 @@
     padding-top: 10px !important;
   }
 
-  .a5-paper {
+  /* --- PRINT STYLES --- */
+  @media print {
+    body {
+      background: #fff !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    .header, .segmented-control, #view-editor, .bottom-bar, .paper-format-bar {
+      display: none !important;
+    }
+    #preview-container {
+      display: block !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+
+    /* Print A5 (Standard) */
+    .a5-paper {
       max-width: 100% !important;
       width: 148mm !important;
-      height: 210mm !important;
+      min-height: 205mm !important;
       box-shadow: none !important;
       border-radius: 0 !important;
       padding: 8mm 10mm !important;
-      margin: 0 !important;
+      margin: 0 auto !important;
       page-break-after: avoid;
     }
-    @page {
-      size: A5 portrait;
-      margin: 0;
+
+    /* Print A4 (Large) */
+    body.is-print-a4 .a5-paper {
+      width: 210mm !important;
+      min-height: 292mm !important;
+      padding: 16mm 18mm !important;
     }
+    body.is-print-a4 .a5-inner-border {
+      padding: 16px 18px !important;
+      gap: 14px !important;
+    }
+    body.is-print-a4 .menu-top-label {
+      font-size: 12px !important;
+    }
+    body.is-print-a4 .menu-main-title {
+      font-size: 32px !important;
+    }
+    body.is-print-a4 .menu-sub-title {
+      font-size: 17px !important;
+    }
+    body.is-print-a4 .menu-meta-badge {
+      font-size: 12px !important;
+      padding: 4px 16px !important;
+    }
+    body.is-print-a4 .section-title {
+      font-size: 15px !important;
+      margin-bottom: 8px !important;
+    }
+    body.is-print-a4 .menu-row {
+      margin-bottom: 5px !important;
+    }
+    body.is-print-a4 .menu-item-name {
+      font-size: 14px !important;
+    }
+    body.is-print-a4 .menu-item-grams {
+      font-size: 12.5px !important;
+      margin-left: 8px !important;
+    }
+    body.is-print-a4 .menu-price {
+      font-size: 15px !important;
+    }
+    body.is-print-a4 .menu-desc-print {
+      font-size: 12.5px !important;
+      margin-bottom: 6px !important;
+    }
+    body.is-print-a4 .menu-footer-print {
+      font-size: 11.5px !important;
+      padding-top: 14px !important;
+    }
+  }
+
+  @page {
+    size: auto;
+    margin: 0;
   }
 </style>
 </head>
@@ -1140,10 +1157,14 @@
       listEl.innerHTML = menu[cat].map(item => `
         <div style="margin-bottom: 3px;">
           <div class="menu-row">
-            <span class="menu-item-name">${escapeHtml(item.name)}</span>
-            <span class="menu-item-grams">${escapeHtml(item.grams)} г</span>
-            <span class="menu-dots"></span>
-            <span class="menu-price">${escapeHtml(item.price)} €</span>
+            <div class="menu-left-part">
+              <span class="menu-item-name">${escapeHtml(item.name)}</span>
+              <span class="menu-item-grams">${escapeHtml(item.grams)} г</span>
+            </div>
+            <div class="menu-dots"></div>
+            <div class="menu-right-part">
+              <span class="menu-price">${escapeHtml(item.price)} €</span>
+            </div>
           </div>
           ${item.desc ? `<div class="menu-desc-print">${escapeHtml(item.desc)}</div>` : ''}
         </div>
@@ -1320,7 +1341,7 @@
       btnA5.classList.remove('active');
       document.body.classList.add('is-print-a4');
       if (sheet) sheet.classList.add('format-a4-screen');
-      if (bar) bar.style.maxWidth = '680px';
+      if (bar) bar.style.maxWidth = '720px';
       styleTag.innerHTML = '@media print { @page { size: A4 portrait; margin: 0; } }';
     } else {
       btnA5.classList.add('active');
