@@ -625,6 +625,35 @@
         </div>
       </div>
 
+      <!-- Sync & Transfer Card (Phone / Laptop) -->
+      <div class="card" style="border: 1px solid #ffaa44; background: rgba(255, 170, 68, 0.05);">
+        <div class="card-header" style="cursor: pointer;" onclick="toggleSyncCard()">
+          <span class="card-title" style="color: #ffaa44;">
+            📲 Синхронизация: Телефон ⇄ Лаптоп
+          </span>
+          <span id="sync-toggle-icon" style="font-size: 14px; color: #ffaa44;">▼</span>
+        </div>
+        <div id="sync-card-body">
+          <p style="font-size: 12px; color: #8899a6; margin-bottom: 12px; line-height: 1.4;">
+            Попълнете менюто на телефона и натиснете <strong>«Копирай линк»</strong>. Отворете линка на лаптопа и менюто ще се зареди готово за печат!
+          </p>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
+            <button class="btn-primary" style="font-size: 12px; padding: 10px; background: #ffaa44; color: #000; font-weight: 700;" onclick="shareMenuLink()">
+              🔗 Копирай линк за лаптоп
+            </button>
+            <button class="btn-secondary" style="font-size: 12px; padding: 10px;" onclick="exportMenuJson()">
+              📋 Копирай код
+            </button>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+            <button class="btn-secondary" style="font-size: 12px; padding: 8px; border-color: #38444d;" onclick="importMenuPrompt()">
+              📥 Зареди от код (Импорт)
+            </button>
+          </div>
+          <div id="sync-status" style="margin-top: 8px; font-size: 11px; color: #00ba7c; display: none; text-align: center; font-weight: bold;"></div>
+        </div>
+      </div>
+
       <!-- Category 1: Soups -->
       <div class="card">
         <div class="card-header">
@@ -875,8 +904,118 @@
     return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
 
+
+  // --- SYNC / TRANSFER (PHONE <-> LAPTOP) ---
+  function toggleSyncCard() {
+    const body = document.getElementById('sync-card-body');
+    const icon = document.getElementById('sync-toggle-icon');
+    if (body.style.display === 'none') {
+      body.style.display = 'block';
+      icon.innerText = '▼';
+    } else {
+      body.style.display = 'none';
+      icon.innerText = '▶';
+    }
+  }
+
+  function showSyncMsg(msg, isSuccess = true) {
+    const el = document.getElementById('sync-status');
+    el.innerText = msg;
+    el.style.color = isSuccess ? '#00ba7c' : '#f4212e';
+    el.style.display = 'block';
+    setTimeout(() => { el.style.display = 'none'; }, 5000);
+  }
+
+  function generateMenuLink() {
+    const jsonStr = JSON.stringify(menu);
+    const encoded = encodeURIComponent(jsonStr);
+    const b64 = btoa(unescape(encoded));
+    const cleanUrl = window.location.origin + window.location.pathname;
+    return cleanUrl + '#menu=' + b64;
+  }
+
+  function shareMenuLink() {
+    const url = generateMenuLink();
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(url).then(() => {
+        showSyncMsg('✅ Линкът е копиран! Изпратете го на лаптопа (по Viber, WhatsApp, имейл или др.)');
+      }).catch(() => {
+        fallbackCopy(url);
+      });
+    } else {
+      fallbackCopy(url);
+    }
+  }
+
+  function exportMenuJson() {
+    const jsonStr = JSON.stringify(menu);
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(jsonStr).then(() => {
+        showSyncMsg('✅ Кодът е копиран в клипборда!');
+      }).catch(() => {
+        prompt('Копирайте този код:', jsonStr);
+      });
+    } else {
+      prompt('Копирайте този код:', jsonStr);
+    }
+  }
+
+  function importMenuPrompt() {
+    const input = prompt('Поставете копирания код тук:');
+    if (!input) return;
+    try {
+      const parsed = JSON.parse(input);
+      if (parsed.soups || parsed.salads || parsed.pizzas) {
+        menu = parsed;
+        if (!menu.mains) menu.mains = [];
+        saveMenu();
+        showSyncMsg('✅ Менюто е заредено успешно!');
+      } else {
+        alert('Невалиден формат на данните.');
+      }
+    } catch(e) {
+      alert('Грешка при четене на кода: ' + e.message);
+    }
+  }
+
+  function fallbackCopy(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+      document.execCommand('copy');
+      showSyncMsg('✅ Линкът е копиран!');
+    } catch (err) {
+      prompt('Копирайте линка от тук:', text);
+    }
+    document.body.removeChild(textArea);
+  }
+
+  function checkUrlHashLoad() {
+    try {
+      if (window.location.hash && window.location.hash.startsWith('#menu=')) {
+        const b64 = window.location.hash.replace('#menu=', '');
+        const jsonStr = decodeURIComponent(escape(atob(b64)));
+        const parsed = JSON.parse(jsonStr);
+        if (parsed.soups || parsed.salads || parsed.pizzas) {
+          menu = parsed;
+          if (!menu.mains) menu.mains = [];
+          saveMenu();
+          setTab('preview');
+          setTimeout(() => {
+            alert('✅ Менюто от телефона се зареди автоматично! Готово е за печат.');
+          }, 300);
+        }
+      }
+    } catch (e) {
+      console.log('No hash menu to load');
+    }
+  }
+
   // Initialize
   renderMenu();
+  checkUrlHashLoad();
 </script>
 
 </body>
