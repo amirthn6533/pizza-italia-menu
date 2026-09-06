@@ -428,6 +428,71 @@
     padding: 8px 0;
   }
 
+  
+  /* Paper format toggle styles */
+  .paper-format-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 480px;
+    margin: 0 auto 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+  }
+  .format-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+    background: var(--card-inner);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .format-btn.active {
+    background: var(--accent-orange);
+    color: #fff;
+    border-color: var(--accent-orange);
+  }
+
+  /* When A4 format is active on screen */
+  .format-a4-screen {
+    max-width: 680px !important;
+    padding: 24px 28px !important;
+  }
+  .format-a4-screen .menu-main-title {
+    font-size: 30px !important;
+  }
+  .format-a4-screen .menu-sub-title {
+    font-size: 16px !important;
+  }
+  .format-a4-screen .section-title {
+    font-size: 14px !important;
+    padding-bottom: 3px !important;
+    margin-bottom: 8px !important;
+  }
+  .format-a4-screen .menu-row {
+    font-size: 13.5px !important;
+    margin-bottom: 4px !important;
+  }
+  .format-a4-screen .menu-item-grams {
+    font-size: 12px !important;
+  }
+  .format-a4-screen .menu-price {
+    font-size: 14.5px !important;
+  }
+  .format-a4-screen .menu-desc-print {
+    font-size: 11.5px !important;
+    margin-bottom: 6px !important;
+  }
+  .format-a4-screen .menu-footer-print {
+    font-size: 11px !important;
+    padding-top: 10px !important;
+  }
+
   .a5-paper {
     background: #fff;
     color: #111;
@@ -591,7 +656,72 @@
       padding: 0 !important;
       margin: 0 !important;
     }
-    .a5-paper {
+    
+  /* Paper format toggle styles */
+  .paper-format-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 480px;
+    margin: 0 auto 12px;
+    background: var(--card-bg);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 8px 12px;
+  }
+  .format-btn {
+    padding: 6px 14px;
+    border-radius: 20px;
+    border: 1px solid var(--card-border);
+    background: var(--card-inner);
+    color: var(--text-muted);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .format-btn.active {
+    background: var(--accent-orange);
+    color: #fff;
+    border-color: var(--accent-orange);
+  }
+
+  /* When A4 format is active on screen */
+  .format-a4-screen {
+    max-width: 680px !important;
+    padding: 24px 28px !important;
+  }
+  .format-a4-screen .menu-main-title {
+    font-size: 30px !important;
+  }
+  .format-a4-screen .menu-sub-title {
+    font-size: 16px !important;
+  }
+  .format-a4-screen .section-title {
+    font-size: 14px !important;
+    padding-bottom: 3px !important;
+    margin-bottom: 8px !important;
+  }
+  .format-a4-screen .menu-row {
+    font-size: 13.5px !important;
+    margin-bottom: 4px !important;
+  }
+  .format-a4-screen .menu-item-grams {
+    font-size: 12px !important;
+  }
+  .format-a4-screen .menu-price {
+    font-size: 14.5px !important;
+  }
+  .format-a4-screen .menu-desc-print {
+    font-size: 11.5px !important;
+    margin-bottom: 6px !important;
+  }
+  .format-a4-screen .menu-footer-print {
+    font-size: 11px !important;
+    padding-top: 10px !important;
+  }
+
+  .a5-paper {
       max-width: 100% !important;
       width: 148mm !important;
       height: 210mm !important;
@@ -616,7 +746,7 @@
       <div class="brand-logo">🍕</div>
       <div>
         <div class="brand-title">PIZZA ITALIA</div>
-        <div class="brand-sub">Обедно Меню • A5</div>
+        <div class="brand-sub">Обедно Меню • A4 / A5</div>
       </div>
     </div>
     <button onclick="window.print()" class="btn-primary" style="max-width: fit-content; padding: 8px 14px; font-size: 12px;">
@@ -631,7 +761,7 @@
       ✏️ Редактор на ястия
     </button>
     <button id="tab-preview" class="segment-btn" onclick="setTab('preview')">
-      👁️ Преглед за печат (A5)
+      👁️ Преглед за печат
     </button>
   </div>
 
@@ -753,9 +883,24 @@
 
     </div>
 
-    <!-- VIEW 2: REALISTIC A5 PRINT PREVIEW -->
+    <!-- VIEW 2: REALISTIC PRINT PREVIEW -->
     <div id="preview-container">
-      <div class="a5-paper">
+      <!-- Paper Size Switcher (A5 / A4) -->
+      <div class="paper-format-bar">
+        <span style="font-size: 13px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 6px;">
+          📄 Формат на хартията:
+        </span>
+        <div style="display: flex; gap: 8px;">
+          <button id="btn-format-a5" class="format-btn active" onclick="setPaperFormat('A5')">
+            A5 (Стандартно)
+          </button>
+          <button id="btn-format-a4" class="format-btn" onclick="setPaperFormat('A4')">
+            A4 (Голямо)
+          </button>
+        </div>
+      </div>
+
+      <div class="a5-paper" id="print-paper-sheet">
         <div class="a5-inner-frame">
           <div class="a5-inner-border">
             
@@ -810,7 +955,7 @@
       🔄 Пример
     </button>
     <button class="btn-primary" onclick="window.print()">
-      🖨️ Принтирай (A5)
+      🖨️ Принтирай
     </button>
   </div>
 
@@ -1149,8 +1294,47 @@
     }
   }
 
+
+  // --- PAPER FORMAT SWITCHER (A5 / A4) ---
+  let currentPaperFormat = localStorage.getItem('pizza_italia_paper_format') || 'A5';
+
+  function setPaperFormat(fmt) {
+    currentPaperFormat = fmt;
+    localStorage.setItem('pizza_italia_paper_format', fmt);
+
+    const sheet = document.getElementById('print-paper-sheet');
+    const bar = document.querySelector('.paper-format-bar');
+    const btnA5 = document.getElementById('btn-format-a5');
+    const btnA4 = document.getElementById('btn-format-a4');
+    const pageStyleId = 'dynamic-page-size-style';
+    let styleTag = document.getElementById(pageStyleId);
+
+    if (!styleTag) {
+      styleTag = document.createElement('style');
+      styleTag.id = pageStyleId;
+      document.head.appendChild(styleTag);
+    }
+
+    if (fmt === 'A4') {
+      btnA4.classList.add('active');
+      btnA5.classList.remove('active');
+      document.body.classList.add('is-print-a4');
+      if (sheet) sheet.classList.add('format-a4-screen');
+      if (bar) bar.style.maxWidth = '680px';
+      styleTag.innerHTML = '@media print { @page { size: A4 portrait; margin: 0; } }';
+    } else {
+      btnA5.classList.add('active');
+      btnA4.classList.remove('active');
+      document.body.classList.remove('is-print-a4');
+      if (sheet) sheet.classList.remove('format-a4-screen');
+      if (bar) bar.style.maxWidth = '480px';
+      styleTag.innerHTML = '@media print { @page { size: A5 portrait; margin: 0; } }';
+    }
+  }
+
   // Initialize
   renderMenu();
+  setPaperFormat(currentPaperFormat);
   checkUrlHashLoad();
 </script>
 
