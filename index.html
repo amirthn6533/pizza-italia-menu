@@ -185,6 +185,7 @@
   }
   .badge-soups { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
   .badge-salads { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+  .badge-mains { background: rgba(59, 130, 246, 0.15); color: #60a5fa; border: 1px solid rgba(59, 130, 246, 0.3); }
   .badge-pizzas { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
   /* Input fields */
@@ -411,7 +412,7 @@
 
   .a5-inner-border {
     border: 1px solid #111;
-    padding: 12px 14px;
+    padding: 10px 12px;
     display: flex;
     flex-direction: column;
     gap: 8px;
@@ -420,7 +421,8 @@
   .menu-header-print {
     text-align: center;
     border-bottom: 2px solid #111;
-    padding-bottom: 6px;
+    padding-bottom: 4px;
+    margin-bottom: 4px;
   }
 
   .menu-top-label {
@@ -432,7 +434,7 @@
   }
 
   .menu-main-title {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 900;
     letter-spacing: 2px;
     margin: 2px 0;
@@ -458,26 +460,35 @@
   }
 
   .menu-section {
-    margin-bottom: 8px;
+    margin-bottom: 5px;
   }
 
   .section-title {
     text-align: center;
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 900;
-    letter-spacing: 2px;
+    letter-spacing: 1.5px;
     text-transform: uppercase;
     border-bottom: 1px solid #999;
-    padding-bottom: 2px;
-    margin-bottom: 6px;
+    padding-bottom: 1px;
+    margin-bottom: 4px;
     position: relative;
   }
 
   .menu-row {
     display: flex;
     align-items: baseline;
-    font-size: 12px;
-    margin-bottom: 3px;
+    justify-content: space-between;
+    font-size: 11px;
+    margin-bottom: 2px;
+    line-height: 1.25;
+  }
+
+  .menu-row-left {
+    display: flex;
+    align-items: baseline;
+    flex: 1;
+    min-width: 0;
   }
 
   .menu-item-name {
@@ -638,7 +649,19 @@
         <button class="btn-add" onclick="addItem('salads')">+ Добави салата</button>
       </div>
 
-      <!-- Category 3: Pizzas -->
+            <!-- Category 3: Mains -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            🍝 ОСНОВНИ ЯСТИЯ
+            <span class="badge-category badge-mains" id="count-mains">2 ястия</span>
+          </span>
+        </div>
+        <div id="items-mains"></div>
+        <button class="btn-add" onclick="addItem('mains')">+ Добави основно ястие</button>
+      </div>
+
+      <!-- Category 4: Pizzas -->
       <div class="card">
         <div class="card-header">
           <span class="card-title">
@@ -676,6 +699,12 @@
             <div class="menu-section">
               <div class="section-title">~ САЛАТИ / INSALATE ~</div>
               <div id="print-salads-list"></div>
+            </div>
+
+                        <!-- Mains Section -->
+            <div class="menu-section">
+              <div class="section-title">~ ОСНОВНИ ЯСТИЯ / SECONDI ~</div>
+              <div id="print-mains-list"></div>
             </div>
 
             <!-- Pizzas Section -->
@@ -720,6 +749,10 @@
       { name: 'Салата Капрезе', desc: 'Белени домати, прясна моцарела, домашно песто', grams: '300', price: '7.90' },
       { name: 'Цезар с хрупкаво пиле', desc: 'Айсберг, чери домати, пармезан, крутони', grams: '350', price: '8.50' }
     ],
+    mains: [
+      { name: 'Спагети Карбонара', desc: 'Гуанчале, пресни жълтъци, пекорино романо, пармезан', grams: '380', price: '9.90' },
+      { name: 'Пилешко филе по сицилиански', desc: 'С маслини, каперси, пресни домати и печени картофи', grams: '400', price: '10.50' }
+    ],
     pizzas: [
       { name: 'Пица Маргарита D.O.P.', desc: 'Доматен сос Сан Марцано, моцарела фиор ди лате, босилек', grams: '420', price: '8.90' },
       { name: 'Пица Капричоза', desc: 'Шунка прошуто кото, пресни гъби, артишок, маслини', grams: '450', price: '10.50' },
@@ -727,7 +760,10 @@
     ]
   };
 
-  let menu = JSON.parse(localStorage.getItem('pizza_italia_lunch_menu')) || defaultMenu;
+    let menu = JSON.parse(localStorage.getItem('pizza_italia_lunch_menu')) || defaultMenu;
+  if (!menu.mains) {
+    menu.mains = JSON.parse(JSON.stringify(defaultMenu.mains));
+  }
 
   function saveMenu() {
     localStorage.setItem('pizza_italia_lunch_menu', JSON.stringify(menu));
@@ -751,7 +787,7 @@
     document.getElementById('cfg-day').value = menu.day || 'Понеделник';
     document.getElementById('cfg-time').value = menu.time || '11:30 – 15:30 ч.';
 
-    ['soups', 'salads', 'pizzas'].forEach(cat => {
+    ['soups', 'salads', 'mains', 'pizzas'].forEach(cat => {
       const container = document.getElementById('items-' + cat);
       const countBadge = document.getElementById('count-' + cat);
       countBadge.innerText = menu[cat].length + ' ястия';
@@ -789,10 +825,10 @@
     menu.time = time;
     document.getElementById('print-badge').innerText = `${day} • ${time}`;
 
-    ['soups', 'salads', 'pizzas'].forEach(cat => {
+    ['soups', 'salads', 'mains', 'pizzas'].forEach(cat => {
       const listEl = document.getElementById('print-' + cat + '-list');
       listEl.innerHTML = menu[cat].map(item => `
-        <div style="margin-bottom: 5px;">
+        <div style="margin-bottom: 3px;">
           <div class="menu-row">
             <span class="menu-item-name">${escapeHtml(item.name)}</span>
             <span class="menu-item-grams">${escapeHtml(item.grams)} г</span>
