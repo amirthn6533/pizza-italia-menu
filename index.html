@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+<meta charset="UTF-8">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="theme-color" content="#c2410c">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Pizza Italia">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pizza Italia • Обедно Меню</title>
+<style>
+  :root {
+    --bg: #0b0f19;
+    --card: #141b2d;
+    --card-border: #232d45;
+    --card-inner: #1a233a;
+    --primary: #c2410c;
+    --primary-gradient: linear-gradient(135deg, #ea580c 0%, #c2410c 100%);
+    --accent-gold: #f59e0b;
+    --accent-green: #10b981;
+    --text: #f8fafc;
+    --text-muted: #94a3b8;
+    --text-dim: #64748b;
+    --radius-lg: 16px;
+    --radius-md: 10px;
+    --radius-sm: 6px;
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5), 0 8px 10px -6px rgba(0, 0, 0, 0.5);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body {
+    background-color: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    min-height: 100vh;
+    padding-bottom: 90px;
+  }
+
+  /* App Bar */
+  .header {
+    background: rgba(20, 27, 45, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--card-border);
+    padding: 12px 16px;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .brand-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .brand-logo {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #b91c1c, #991b1b);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(185, 28, 28, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+  }
+
+  .brand-title {
+    font-family: Georgia, 'Times New Roman', serif;
+    font-size: 19px;
+    font-weight: 800;
+    letter-spacing: 1px;
+    color: #fff;
+    line-height: 1.1;
+  }
+
+  .brand-sub {
+    font-size: 11px;
+    color: var(--accent-gold);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .tricolore-strip {
+    height: 3px;
+    display: flex;
+    width: 100%;
+  }
+  .tricolore-strip div:nth-child(1) { flex: 1; background: #009246; }
+  .tricolore-strip div:nth-child(2) { flex: 1; background: #ffffff; }
+  .tricolore-strip div:nth-child(3) { flex: 1; background: #ce2b37; }
+
+  /* Segmented iOS Tab Control */
+  .segmented-control {
+    background: #0f1422;
+    border: 1px solid var(--card-border);
+    border-radius: 12px;
+    padding: 4px;
+    display: flex;
+    margin: 16px auto;
+    max-width: 480px;
+    gap: 4px;
+  }
+
+  .segment-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-weight: 600;
+    font-size: 13px;
+    padding: 10px 12px;
+    border-radius: 9px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  .segment-btn.active {
+    background: #1e293b;
+    color: #fff;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0 16px;
+  }
+
+  /* Cards */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 16px;
+    box-shadow: var(--shadow);
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 12px;
+  }
+
+  .card-title {
+    font-size: 14px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .badge-category {
+    padding: 3px 8px;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .badge-soups { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+  .badge-salads { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+  .badge-pizzas { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+  /* Input fields */
+  .input-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+  }
+
+  .input-text, .select-input {
+    width: 100%;
+    background: var(--card-inner);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-md);
+    padding: 10px 12px;
+    color: #fff;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .input-text:focus, .select-input:focus {
+    border-color: var(--accent-gold);
+  }
+
+  .row-grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  /* Dish Item Row */
+  .dish-item {
+    background: var(--card-inner);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-md);
+    padding: 10px;
+    margin-bottom: 8px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .dish-top-row {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+  }
+
+  .dish-name-input {
+    flex: 1;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    padding: 8px 10px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  .dish-desc-input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: var(--radius-sm);
+    padding: 6px 8px;
+    color: var(--text-muted);
+    font-size: 11px;
+  }
+
+  .btn-remove {
+    background: rgba(239, 68, 68, 0.15);
+    border: 1px solid rgba(239, 68, 68, 0.3);
+    color: #f87171;
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-sm);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .dish-bottom-row {
+    display: flex;
+    gap: 8px;
+  }
+
+  .input-with-unit {
+    position: relative;
+    flex: 1;
+  }
+
+  .input-with-unit input {
+    width: 100%;
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid var(--card-border);
+    border-radius: var(--radius-sm);
+    padding: 6px 28px 6px 8px;
+    color: #fff;
+    font-size: 12px;
+    text-align: right;
+  }
+
+  .unit-tag {
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--text-dim);
+    pointer-events: none;
+  }
+
+  .btn-add {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px dashed var(--card-border);
+    color: var(--text-muted);
+    width: 100%;
+    padding: 9px;
+    border-radius: var(--radius-md);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+
+  .btn-add:hover, .btn-add:active {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: var(--accent-gold);
+  }
+
+  /* Bottom Floating Action Bar */
+  .bottom-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(15, 20, 34, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-top: 1px solid var(--card-border);
+    padding: 12px 16px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    z-index: 50;
+  }
+
+  .btn-primary {
+    flex: 1;
+    max-width: 240px;
+    background: var(--primary-gradient);
+    border: none;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    padding: 12px 18px;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 15px rgba(234, 88, 12, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform 0.1s;
+  }
+  .btn-primary:active { transform: scale(0.97); }
+
+  .btn-secondary {
+    background: #1e293b;
+    border: 1px solid var(--card-border);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 12px 16px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+  }
+
+  /* PREVIEW CANVAS (A5 Paper) */
+  #preview-container {
+    display: none;
+    padding: 8px 0;
+  }
+
+  .a5-paper {
+    background: #fff;
+    color: #111;
+    width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 14px 14px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.7);
+    border-radius: 6px;
+    position: relative;
+    font-family: Georgia, 'Times New Roman', serif;
+    box-sizing: border-box;
+  }
+
+  /* Frame */
+  .a5-inner-frame {
+    border: 2px solid #111;
+    padding: 3px;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .a5-inner-border {
+    border: 1px solid #111;
+    padding: 12px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .menu-header-print {
+    text-align: center;
+    border-bottom: 2px solid #111;
+    padding-bottom: 6px;
+  }
+
+  .menu-top-label {
+    font-size: 10px;
+    font-family: Arial, sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  .menu-main-title {
+    font-size: 26px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    margin: 2px 0;
+    text-transform: uppercase;
+  }
+
+  .menu-sub-title {
+    font-size: 13px;
+    font-style: italic;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .menu-meta-badge {
+    display: inline-block;
+    border: 1px solid #111;
+    padding: 2px 10px;
+    font-size: 10px;
+    font-family: Arial, sans-serif;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .menu-section {
+    margin-bottom: 8px;
+  }
+
+  .section-title {
+    text-align: center;
+    font-size: 12px;
+    font-weight: 900;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    border-bottom: 1px solid #999;
+    padding-bottom: 2px;
+    margin-bottom: 6px;
+    position: relative;
+  }
+
+  .menu-row {
+    display: flex;
+    align-items: baseline;
+    font-size: 12px;
+    margin-bottom: 3px;
+  }
+
+  .menu-item-name {
+    font-weight: 700;
+    color: #000;
+  }
+
+  .menu-item-grams {
+    font-size: 10px;
+    color: #444;
+    font-style: italic;
+    margin-left: 4px;
+    font-family: Arial, sans-serif;
+  }
+
+  .menu-dots {
+    flex: 1;
+    border-bottom: 1px dotted #555;
+    margin: 0 6px 4px;
+  }
+
+  .menu-price {
+    font-weight: 900;
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .menu-desc-print {
+    font-size: 9.5px;
+    color: #444;
+    font-style: italic;
+    margin-top: -2px;
+    margin-bottom: 4px;
+    padding-left: 6px;
+  }
+
+  .menu-footer-print {
+    text-align: center;
+    border-top: 1px solid #111;
+    padding-top: 6px;
+    font-size: 9px;
+    font-family: Arial, sans-serif;
+    color: #333;
+    line-height: 1.3;
+  }
+
+  /* PRINT STYLES */
+  @media print {
+    body {
+      background: #fff !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    .header, .segmented-control, #view-editor, .bottom-bar {
+      display: none !important;
+    }
+    #preview-container {
+      display: block !important;
+      padding: 0 !important;
+      margin: 0 !important;
+    }
+    .a5-paper {
+      max-width: 100% !important;
+      width: 148mm !important;
+      height: 210mm !important;
+      box-shadow: none !important;
+      border-radius: 0 !important;
+      padding: 8mm 10mm !important;
+      margin: 0 !important;
+      page-break-after: avoid;
+    }
+    @page {
+      size: A5 portrait;
+      margin: 0;
+    }
+  }
+</style>
+</head>
+<body>
+
+  <!-- Top Navigation Bar -->
+  <header class="header">
+    <div class="brand-group">
+      <div class="brand-logo">🍕</div>
+      <div>
+        <div class="brand-title">PIZZA ITALIA</div>
+        <div class="brand-sub">Обедно Меню • A5</div>
+      </div>
+    </div>
+    <button onclick="window.print()" class="btn-primary" style="max-width: fit-content; padding: 8px 14px; font-size: 12px;">
+      🖨️ Принтирай
+    </button>
+  </header>
+  <div class="tricolore-strip"><div></div><div></div><div></div></div>
+
+  <!-- Mode Switcher (iOS Segmented Control) -->
+  <div class="segmented-control">
+    <button id="tab-edit" class="segment-btn active" onclick="setTab('edit')">
+      ✏️ Редактор на ястия
+    </button>
+    <button id="tab-preview" class="segment-btn" onclick="setTab('preview')">
+      👁️ Преглед за печат (A5)
+    </button>
+  </div>
+
+  <div class="container">
+
+    <!-- VIEW 1: EDITOR FORM -->
+    <div id="view-editor">
+
+      <!-- Settings Card -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">📅 Настройки за деня</span>
+        </div>
+        <div class="row-grid-2">
+          <div>
+            <label class="input-label">Ден от седмицата</label>
+            <select id="cfg-day" class="select-input" onchange="renderMenu()">
+              <option value="Понеделник">Понеделник</option>
+              <option value="Вторник">Вторник</option>
+              <option value="Сряда">Сряда</option>
+              <option value="Четвъртък">Четвъртък</option>
+              <option value="Петък">Петък</option>
+              <option value="Събота">Събота</option>
+              <option value="Всеки делничен ден">Всеки делничен ден</option>
+            </select>
+          </div>
+          <div>
+            <label class="input-label">Работно време</label>
+            <input type="text" id="cfg-time" class="input-text" value="11:30 – 15:30 ч." oninput="renderMenu()">
+          </div>
+        </div>
+      </div>
+
+      <!-- Category 1: Soups -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            🍲 СУПИ
+            <span class="badge-category badge-soups" id="count-soups">2 ястия</span>
+          </span>
+        </div>
+        <div id="items-soups"></div>
+        <button class="btn-add" onclick="addItem('soups')">+ Добави супа</button>
+      </div>
+
+      <!-- Category 2: Salads -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            🥗 САЛАТИ
+            <span class="badge-category badge-salads" id="count-salads">2 ястия</span>
+          </span>
+        </div>
+        <div id="items-salads"></div>
+        <button class="btn-add" onclick="addItem('salads')">+ Добави салата</button>
+      </div>
+
+      <!-- Category 3: Pizzas -->
+      <div class="card">
+        <div class="card-header">
+          <span class="card-title">
+            🍕 ПИЦИ
+            <span class="badge-category badge-pizzas" id="count-pizzas">3 ястия</span>
+          </span>
+        </div>
+        <div id="items-pizzas"></div>
+        <button class="btn-add" onclick="addItem('pizzas')">+ Добави пица</button>
+      </div>
+
+    </div>
+
+    <!-- VIEW 2: REALISTIC A5 PRINT PREVIEW -->
+    <div id="preview-container">
+      <div class="a5-paper">
+        <div class="a5-inner-frame">
+          <div class="a5-inner-border">
+            
+            <!-- Header -->
+            <div class="menu-header-print">
+              <div class="menu-top-label">ТРАДИЦИОННА ИТАЛИАНСКА КУХНЯ</div>
+              <div class="menu-main-title">PIZZA ITALIA</div>
+              <div class="menu-sub-title">Обедно Меню</div>
+              <div class="menu-meta-badge" id="print-badge">Понеделник • 11:30 – 15:30 ч.</div>
+            </div>
+
+            <!-- Soups Section -->
+            <div class="menu-section">
+              <div class="section-title">~ СУПИ / ZUPPE ~</div>
+              <div id="print-soups-list"></div>
+            </div>
+
+            <!-- Salads Section -->
+            <div class="menu-section">
+              <div class="section-title">~ САЛАТИ / INSALATE ~</div>
+              <div id="print-salads-list"></div>
+            </div>
+
+            <!-- Pizzas Section -->
+            <div class="menu-section">
+              <div class="section-title">~ ПИЦИ / PIZZE ~</div>
+              <div id="print-pizzas-list"></div>
+            </div>
+
+            <!-- Footer -->
+            <div class="menu-footer-print">
+              <div><strong>Пицария "Италия"</strong> • Петте кьошета, бул. Скобелев 46, София</div>
+              <div style="margin-top: 2px;">Всички ястия се приготвят на място с оригинални италиански продукти. • <em>Buon Appetito!</em></div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Bottom Floating Navigation -->
+  <div class="bottom-bar">
+    <button class="btn-secondary" onclick="resetDefaults()">
+      🔄 Пример
+    </button>
+    <button class="btn-primary" onclick="window.print()">
+      🖨️ Принтирай (A5)
+    </button>
+  </div>
+
+<script>
+  // Initial menu state
+  const defaultMenu = {
+    day: 'Понеделник',
+    time: '11:30 – 15:30 ч.',
+    soups: [
+      { name: 'Минестроне класик', desc: 'С пресни зеленчуци, босилек и пармезан', grams: '350', price: '4.90' },
+      { name: 'Крем супа от манатарки', desc: 'С хрупкави домашни крутони', grams: '350', price: '5.50' }
+    ],
+    salads: [
+      { name: 'Салата Капрезе', desc: 'Белени домати, прясна моцарела, домашно песто', grams: '300', price: '7.90' },
+      { name: 'Цезар с хрупкаво пиле', desc: 'Айсберг, чери домати, пармезан, крутони', grams: '350', price: '8.50' }
+    ],
+    pizzas: [
+      { name: 'Пица Маргарита D.O.P.', desc: 'Доматен сос Сан Марцано, моцарела фиор ди лате, босилек', grams: '420', price: '8.90' },
+      { name: 'Пица Капричоза', desc: 'Шунка прошуто кото, пресни гъби, артишок, маслини', grams: '450', price: '10.50' },
+      { name: 'Пица Диавола (Пикантна)', desc: 'Пикантен салам Спината Калабрезе, моцарела, пеперончино', grams: '440', price: '10.90' }
+    ]
+  };
+
+  let menu = JSON.parse(localStorage.getItem('pizza_italia_lunch_menu')) || defaultMenu;
+
+  function saveMenu() {
+    localStorage.setItem('pizza_italia_lunch_menu', JSON.stringify(menu));
+    renderMenu();
+  }
+
+  function setTab(tab) {
+    const isEdit = tab === 'edit';
+    document.getElementById('view-editor').style.display = isEdit ? 'block' : 'none';
+    document.getElementById('preview-container').style.display = isEdit ? 'none' : 'block';
+    
+    document.getElementById('tab-edit').classList.toggle('active', isEdit);
+    document.getElementById('tab-preview').classList.toggle('active', !isEdit);
+    
+    if (!isEdit) {
+      renderPrintPreview();
+    }
+  }
+
+  function renderEditor() {
+    document.getElementById('cfg-day').value = menu.day || 'Понеделник';
+    document.getElementById('cfg-time').value = menu.time || '11:30 – 15:30 ч.';
+
+    ['soups', 'salads', 'pizzas'].forEach(cat => {
+      const container = document.getElementById('items-' + cat);
+      const countBadge = document.getElementById('count-' + cat);
+      countBadge.innerText = menu[cat].length + ' ястия';
+      
+      container.innerHTML = menu[cat].map((item, idx) => `
+        <div class="dish-item">
+          <div class="dish-top-row">
+            <input type="text" class="dish-name-input" value="${escapeHtml(item.name)}" 
+              placeholder="Име на ястието" onchange="updateItem('${cat}', ${idx}, 'name', this.value)">
+            <button class="btn-remove" title="Изтрий" onclick="removeItem('${cat}', ${idx})">✕</button>
+          </div>
+          <input type="text" class="dish-desc-input" value="${escapeHtml(item.desc || '')}" 
+            placeholder="Описание / съставки (напр. домати, моцарела...)" onchange="updateItem('${cat}', ${idx}, 'desc', this.value)">
+          <div class="dish-bottom-row">
+            <div class="input-with-unit">
+              <input type="text" value="${escapeHtml(item.grams)}" 
+                placeholder="Грамаж" onchange="updateItem('${cat}', ${idx}, 'grams', this.value)">
+              <span class="unit-tag">г</span>
+            </div>
+            <div class="input-with-unit">
+              <input type="text" value="${escapeHtml(item.price)}" 
+                placeholder="Цена" onchange="updateItem('${cat}', ${idx}, 'price', this.value)">
+              <span class="unit-tag">лв.</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    });
+  }
+
+  function renderPrintPreview() {
+    const day = document.getElementById('cfg-day').value;
+    const time = document.getElementById('cfg-time').value;
+    menu.day = day;
+    menu.time = time;
+    document.getElementById('print-badge').innerText = `${day} • ${time}`;
+
+    ['soups', 'salads', 'pizzas'].forEach(cat => {
+      const listEl = document.getElementById('print-' + cat + '-list');
+      listEl.innerHTML = menu[cat].map(item => `
+        <div style="margin-bottom: 5px;">
+          <div class="menu-row">
+            <span class="menu-item-name">${escapeHtml(item.name)}</span>
+            <span class="menu-item-grams">${escapeHtml(item.grams)} г</span>
+            <span class="menu-dots"></span>
+            <span class="menu-price">${escapeHtml(item.price)} лв.</span>
+          </div>
+          ${item.desc ? `<div class="menu-desc-print">${escapeHtml(item.desc)}</div>` : ''}
+        </div>
+      `).join('');
+    });
+  }
+
+  function renderMenu() {
+    menu.day = document.getElementById('cfg-day').value;
+    menu.time = document.getElementById('cfg-time').value;
+    renderEditor();
+    renderPrintPreview();
+  }
+
+  function addItem(cat) {
+    menu[cat].push({ name: '', desc: '', grams: '350', price: '5.00' });
+    saveMenu();
+  }
+
+  function removeItem(cat, idx) {
+    menu[cat].splice(idx, 1);
+    saveMenu();
+  }
+
+  function updateItem(cat, idx, field, val) {
+    menu[cat][idx][field] = val;
+    saveMenu();
+  }
+
+  function resetDefaults() {
+    if (confirm('Да заредя ли примерното меню на Pizza Italia?')) {
+      menu = JSON.parse(JSON.stringify(defaultMenu));
+      saveMenu();
+    }
+  }
+
+  function escapeHtml(str) {
+    if (!str) return '';
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  // Initialize
+  renderMenu();
+</script>
+
+</body>
+</html>
