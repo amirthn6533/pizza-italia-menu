@@ -975,7 +975,7 @@
             <div class="input-with-unit">
               <input type="text" value="${escapeHtml(item.price)}" 
                 placeholder="Цена" onchange="updateItem('${cat}', ${idx}, 'price', this.value)">
-              <span class="unit-tag">лв.</span>
+              <span class="unit-tag">€</span>
             </div>
           </div>
         </div>
@@ -998,7 +998,7 @@
             <span class="menu-item-name">${escapeHtml(item.name)}</span>
             <span class="menu-item-grams">${escapeHtml(item.grams)} г</span>
             <span class="menu-dots"></span>
-            <span class="menu-price">${escapeHtml(item.price)} лв.</span>
+            <span class="menu-price">${escapeHtml(item.price)} €</span>
           </div>
           ${item.desc ? `<div class="menu-desc-print">${escapeHtml(item.desc)}</div>` : ''}
         </div>
