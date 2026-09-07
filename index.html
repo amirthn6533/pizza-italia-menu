@@ -262,6 +262,19 @@
     gap: 10px;
   }
 
+  .row-grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px;
+  }
+
+  @media (max-width: 500px) {
+    .row-grid-3 {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+  }
+
   /* Dish Item Row */
   .dish-item {
     background: var(--card-inner);
@@ -986,10 +999,14 @@
           <button type="button" class="day-pill" onclick="selectDay('Събота')">Събота</button>
         </div>
 
-        <div class="row-grid-2" style="margin-top: 10px;">
+        <div class="row-grid-3" style="margin-top: 10px;">
           <div>
             <label class="input-label">Избран ден</label>
             <input type="text" id="cfg-day" class="input-text" value="Понеделник" oninput="onDayNameChange(this.value)">
+          </div>
+          <div>
+            <label class="input-label">Дата (по избор)</label>
+            <input type="text" id="cfg-date" class="input-text" placeholder="напр. 08.09.2026" oninput="onDateChange(this.value)">
           </div>
           <div>
             <label class="input-label">Работно време</label>
@@ -1160,6 +1177,7 @@
   // Initial menu state
   const defaultMenu = {
     day: 'Понеделник',
+    date: '',
     time: '11:30 – 15:30 ч.',
     soups: [
       { name: 'Домашна пилешка супа', desc: 'С пресни зеленчуци, фиде и пресен магданоз', grams: '350', price: '4.90' },
@@ -1244,11 +1262,17 @@
     });
 
     document.getElementById('cfg-day').value = dayName;
+    document.getElementById('cfg-date').value = menu.date || '';
     saveMenu();
   }
 
   function onDayNameChange(val) {
     menu.day = val;
+    saveMenu();
+  }
+
+  function onDateChange(val) {
+    menu.date = val;
     saveMenu();
   }
 
@@ -1292,6 +1316,7 @@
 
   function renderEditor() {
     document.getElementById('cfg-day').value = menu.day || 'Понеделник';
+    document.getElementById('cfg-date').value = menu.date || '';
     document.getElementById('cfg-time').value = menu.time || '11:30 – 15:30 ч.';
 
     ['soups', 'salads', 'mains', 'pizzas'].forEach(cat => {
@@ -1307,7 +1332,7 @@
             <button class="btn-remove" title="Изтрий" onclick="removeItem('${cat}', ${idx})">✕</button>
           </div>
           <input type="text" class="dish-desc-input" value="${escapeHtml(item.desc || '')}" 
-            placeholder="Описание / съставки (напр. домати, моцарела...)" onchange="updateItem('${cat}', ${idx}, 'desc', this.value)">
+              placeholder="Описание / съставки (напр. домати, моцарела...)" onchange="updateItem('${cat}', ${idx}, 'desc', this.value)">
           <div class="dish-bottom-row">
             <div class="input-with-unit">
               <input type="text" value="${escapeHtml(item.grams)}" 
@@ -1327,10 +1352,15 @@
 
   function renderPrintPreview() {
     const day = document.getElementById('cfg-day').value;
+    const date = document.getElementById('cfg-date').value.trim();
     const time = document.getElementById('cfg-time').value;
     menu.day = day;
+    menu.date = date;
     menu.time = time;
-    document.getElementById('print-badge').innerText = `${day} • ${time}`;
+    
+    // Construct badge: e.g. "Понеделник, 08.09.2026 • 11:30 – 15:30 ч." or "Понеделник • 11:30 – 15:30 ч."
+    const dayAndDate = date ? `${day}, ${date}` : day;
+    document.getElementById('print-badge').innerText = `${dayAndDate} • ${time}`;
 
     ['soups', 'salads', 'mains', 'pizzas'].forEach(cat => {
       const listEl = document.getElementById('print-' + cat + '-list');
@@ -1354,6 +1384,7 @@
 
   function renderMenu() {
     menu.day = document.getElementById('cfg-day').value;
+    menu.date = document.getElementById('cfg-date') ? document.getElementById('cfg-date').value.trim() : '';
     menu.time = document.getElementById('cfg-time').value;
     renderEditor();
     renderPrintPreview();
