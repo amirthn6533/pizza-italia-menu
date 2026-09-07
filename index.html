@@ -1440,7 +1440,12 @@
   }
 
   function generateMenuLink() {
-    const jsonStr = JSON.stringify(menu);
+    const syncPayload = {
+      version: 2,
+      activeDay: currentActiveDay,
+      weeklyData: weeklyData
+    };
+    const jsonStr = JSON.stringify(syncPayload);
     const encoded = encodeURIComponent(jsonStr);
     const b64 = btoa(unescape(encoded));
     const cleanUrl = window.location.origin + window.location.pathname;
@@ -1448,10 +1453,12 @@
   }
 
   function shareMenuLink() {
+    // Ensure current inputs are saved into weeklyData first
+    saveMenu();
     const url = generateMenuLink();
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(url).then(() => {
-        showSyncMsg('✅ Линкът е копиран! Изпратете го на лаптопа (по Viber, WhatsApp, имейл или др.)');
+        showSyncMsg('✅ Линкът е копиран! Отворете го на лаптопа – всички дни от седмицата се прехвърлят.');
       }).catch(() => {
         fallbackCopy(url);
       });
@@ -1461,7 +1468,13 @@
   }
 
   function exportMenuJson() {
-    const jsonStr = JSON.stringify(menu);
+    saveMenu();
+    const syncPayload = {
+      version: 2,
+      activeDay: currentActiveDay,
+      weeklyData: weeklyData
+    };
+    const jsonStr = JSON.stringify(syncPayload);
     if (navigator.clipboard && navigator.clipboard.writeText) {
       navigator.clipboard.writeText(jsonStr).then(() => {
         showSyncMsg('✅ Кодът е копиран в клипборда!');
@@ -1478,9 +1491,19 @@
     if (!input) return;
     try {
       const parsed = JSON.parse(input);
-      if (parsed.soups || parsed.salads || parsed.pizzas) {
+      if (parsed.weeklyData) {
+        weeklyData = parsed.weeklyData;
+        localStorage.setItem('pizza_italia_weekly_menus', JSON.stringify(weeklyData));
+        if (parsed.activeDay && weeklyData[parsed.activeDay]) {
+          currentActiveDay = parsed.activeDay;
+        }
+        menu = weeklyData[currentActiveDay];
+        renderMenu();
+        showSyncMsg('✅ Цялото седмично меню е заредено успешно!');
+      } else if (parsed.soups || parsed.salads || parsed.pizzas) {
         menu = parsed;
         if (!menu.mains) menu.mains = [];
+        weeklyData[currentActiveDay] = menu;
         saveMenu();
         showSyncMsg('✅ Менюто е заредено успешно!');
       } else {
@@ -1511,18 +1534,50 @@
         const b64 = window.location.hash.replace('#menu=', '');
         const jsonStr = decodeURIComponent(escape(atob(b64)));
         const parsed = JSON.parse(jsonStr);
-        if (parsed.soups || parsed.salads || parsed.pizzas) {
-          menu = parsed;
+
+        if (parsed.weeklyData) {
+          // Version 2 payload: contains all days
+          weeklyData = parsed.weeklyData;
+          localStorage.setItem('pizza_italia_weekly_menus', JSON.stringify(weeklyData));
+          if (parsed.activeDay && weeklyData[parsed.activeDay]) {
+            currentActiveDay = parsed.activeDay;
+          }
+          menu = weeklyData[currentActiveDay];
           if (!menu.mains) menu.mains = [];
-          saveMenu();
+          localStorage.setItem('pizza_italia_lunch_menu', JSON.stringify(menu));
+
+          // Clean URL hash so refreshing or changing day doesn't re-trigger hash overwrite
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.pathname);
+          }
+
+          selectDay(currentActiveDay);
           setTab('preview');
           setTimeout(() => {
-            alert('✅ Менюто от телефона се зареди автоматично! Готово е за печат.');
+            alert('✅ Всички дни от седмицата бяха прехвърлени успешно! Можете да сменяте дните и да принтирате.');
+          }, 300);
+        } else if (parsed.soups || parsed.salads || parsed.pizzas) {
+          // Legacy single menu payload
+          menu = parsed;
+          if (!menu.mains) menu.mains = [];
+          const targetDay = menu.day || currentActiveDay;
+          currentActiveDay = targetDay;
+          weeklyData[targetDay] = menu;
+          saveMenu();
+
+          if (window.history && window.history.replaceState) {
+            window.history.replaceState(null, null, window.location.pathname);
+          }
+
+          selectDay(targetDay);
+          setTab('preview');
+          setTimeout(() => {
+            alert('✅ Менюто от телефона се зареди успешно! Готово е за печат.');
           }, 300);
         }
       }
     } catch (e) {
-      console.log('No hash menu to load');
+      console.log('No hash menu to load', e);
     }
   }
 
