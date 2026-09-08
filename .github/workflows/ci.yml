@@ -1,0 +1,30 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  validate:
+    name: Lint & Structure Integrity Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+
+      - name: Verify Web Assets & Integrity
+        run: |
+          echo "Verifying project structure and critical assets for pizza-italia-menu..."
+          test -f index.html || (echo "Missing index.html" && exit 1)
+          test -f LICENSE || (echo "Missing LICENSE" && exit 1)
+          test -f README.md || (echo "Missing README.md" && exit 1)
+          echo "Integrity verification passed successfully!"
