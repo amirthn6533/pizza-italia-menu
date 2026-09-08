@@ -1,7 +1,8 @@
-﻿# 🍕 Pizza Italia | Responsive Digital Menu & PWA Web Interface
+# 🍕 Pizza Italia | Responsive Digital Menu & PWA Web Interface
 
 <div align="center">
 
+[![Live Demo](https://img.shields.io/badge/Live_Demo-GitHub_Pages-brightgreen?style=for-the-badge&logo=github)](https://amirthn6533.github.io/pizza-italia-menu/)
 ![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
 ![CSS3](https://img.shields.io/badge/CSS3-1572B6?style=for-the-badge&logo=css3&logoColor=white)
 ![JavaScript](https://img.shields.io/badge/JavaScript-ES6-F7DF1E?style=for-the-badge&logo=javascript&logoColor=black)
@@ -10,7 +11,9 @@
 
 **An interactive, mobile-first digital restaurant menu and contactless ordering web interface featuring PWA home-screen installation and category filtering.**
 
-[Overview](#-overview) • [Key Features](#-key-features) • [Quick Start](#-quick-start) • [PWA Features](#-pwa-capabilities) • [License](#-license)
+🔗 **[Open Live Digital Menu App](https://amirthn6533.github.io/pizza-italia-menu/)**
+
+[Live Demo](https://amirthn6533.github.io/pizza-italia-menu/) • [Overview](#-overview) • [Key Features](#-key-features) • [Quick Start](#-quick-start) • [PWA Features](#-pwa-capabilities) • [License](#-license)
 
 </div>
 
