@@ -51,56 +51,69 @@
       z-index: 1;
     }
 
-    /* --- INTRO SCREEN: LUXURY WAX-SEALED ENVELOPE --- */
+    /* --- INTRO SCREEN: LUXURY ROYAL BURGUNDY & GOLD FOIL ENVELOPE --- */
     #envelope-screen {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      background: radial-gradient(circle at center, #28121a 0%, #0a0507 100%);
+      background: radial-gradient(circle at center, #240810 0%, #0a0305 100%);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       z-index: 999;
-      transition: opacity 0.4s ease, visibility 0.4s ease;
+      transition: opacity 0.5s ease, visibility 0.5s ease;
       padding: 20px;
       perspective: 1200px;
     }
 
+    /* Ambient luxury glow behind envelope */
+    .ambient-glow {
+      position: absolute;
+      width: 460px;
+      height: 460px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(175, 25, 52, 0.28) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
     .envelope-container {
       position: relative;
-      width: 320px;
-      height: 220px;
+      width: 330px;
+      height: 225px;
       cursor: pointer;
+      filter: drop-shadow(0 25px 45px rgba(0, 0, 0, 0.95)) drop-shadow(0 0 35px rgba(180, 20, 50, 0.25));
       transition: transform 0.4s ease;
-      filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.8));
     }
 
     .envelope-container:active {
       transform: scale(0.97);
     }
 
+    /* Back of envelope (Royal Burgundy Velvet) */
     .envelope-back {
       position: absolute;
       width: 100%;
       height: 100%;
-      background: linear-gradient(145deg, #f4ecd8 0%, #e2d2b5 100%);
-      border-radius: 12px;
-      box-shadow: inset 0 0 40px rgba(180, 150, 100, 0.3);
-      border: 1px solid rgba(212, 175, 55, 0.4);
+      background: radial-gradient(circle at 50% 30%, #460e1b 0%, #290810 60%, #150307 100%);
+      border-radius: 14px;
+      border: 1.5px solid rgba(212, 175, 55, 0.7);
+      box-shadow: inset 0 0 45px rgba(0, 0, 0, 0.8), 0 0 20px rgba(212, 175, 55, 0.15);
     }
 
+    /* Letter inside (Luxury Ivory & Gold Trim) */
     .envelope-letter {
       position: absolute;
       width: 90%;
       height: 90%;
       top: 5%;
       left: 5%;
-      background: #fffdf9;
-      border-radius: 8px;
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      background: linear-gradient(145deg, #fffdf8 0%, #f7f1e3 100%);
+      border-radius: 10px;
+      border: 1px solid rgba(212, 175, 55, 0.75);
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.35);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -111,22 +124,33 @@
       z-index: 2;
     }
 
-    .letter-preview-title {
-      font-family: 'Great Vibes', cursive;
-      font-size: 36px;
-      color: #72162c;
-      line-height: 1.1;
-      margin-bottom: 4px;
+    .envelope-letter::before {
+      content: '';
+      position: absolute;
+      top: 5px; left: 5px; right: 5px; bottom: 5px;
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 6px;
+      pointer-events: none;
     }
 
     .letter-preview-sub {
-      font-size: 11px;
-      letter-spacing: 2px;
+      font-size: 10px;
+      letter-spacing: 2.5px;
       color: #947a50;
       text-transform: uppercase;
       font-weight: 600;
     }
 
+    .letter-preview-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: 38px;
+      color: #6d0f22;
+      line-height: 1.15;
+      margin: 4px 0;
+      text-shadow: 0 1px 2px rgba(0,0,0,0.1);
+    }
+
+    /* Folds: Left & Right Triangles */
     .envelope-front-left {
       position: absolute;
       bottom: 0;
@@ -134,10 +158,11 @@
       width: 0;
       height: 0;
       border-style: solid;
-      border-width: 110px 0 110px 160px;
-      border-color: transparent transparent transparent #eeddbf;
+      border-width: 112px 0 113px 165px;
+      border-color: transparent transparent transparent #2a0710;
+      border-bottom-left-radius: 14px;
       z-index: 3;
-      filter: drop-shadow(3px 0 5px rgba(0,0,0,0.06));
+      filter: drop-shadow(4px 0 8px rgba(0,0,0,0.5));
     }
 
     .envelope-front-right {
@@ -147,12 +172,14 @@
       width: 0;
       height: 0;
       border-style: solid;
-      border-width: 110px 160px 110px 0;
-      border-color: transparent #e9d5b4 transparent transparent;
+      border-width: 112px 165px 113px 0;
+      border-color: transparent #21050c transparent transparent;
+      border-bottom-right-radius: 14px;
       z-index: 3;
-      filter: drop-shadow(-3px 0 5px rgba(0,0,0,0.06));
+      filter: drop-shadow(-4px 0 8px rgba(0,0,0,0.5));
     }
 
+    /* Bottom fold */
     .envelope-front-bottom {
       position: absolute;
       bottom: 0;
@@ -160,14 +187,15 @@
       width: 0;
       height: 0;
       border-style: solid;
-      border-width: 0 160px 125px 160px;
-      border-color: transparent transparent #dfc9a6 transparent;
-      border-bottom-left-radius: 12px;
-      border-bottom-right-radius: 12px;
+      border-width: 0 165px 128px 165px;
+      border-color: transparent transparent #1b0409 transparent;
+      border-bottom-left-radius: 14px;
+      border-bottom-right-radius: 14px;
       z-index: 4;
-      filter: drop-shadow(0 -3px 6px rgba(0,0,0,0.08));
+      filter: drop-shadow(0 -5px 12px rgba(0,0,0,0.6));
     }
 
+    /* Top flap */
     .envelope-flap {
       position: absolute;
       top: 0;
@@ -175,65 +203,139 @@
       width: 0;
       height: 0;
       border-style: solid;
-      border-width: 130px 160px 0 160px;
-      border-color: #f7eedb transparent transparent transparent;
-      border-top-left-radius: 12px;
-      border-top-right-radius: 12px;
+      border-width: 135px 165px 0 165px;
+      border-color: #3e0b17 transparent transparent transparent;
+      border-top-left-radius: 14px;
+      border-top-right-radius: 14px;
       z-index: 5;
       transform-origin: top center;
       transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.2s 0.3s;
-      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.12));
+      filter: drop-shadow(0 6px 15px rgba(0,0,0,0.7));
     }
 
-    /* Wax Seal Button */
+    /* Flap Gold Foil Line SVG */
+    .flap-gold-svg {
+      position: absolute;
+      top: -135px;
+      left: -165px;
+      width: 330px;
+      height: 135px;
+      pointer-events: none;
+    }
+
+    /* Calligraphy on bottom flap */
+    .envelope-calligraphy-overlay {
+      position: absolute;
+      bottom: 16px;
+      left: 0;
+      width: 100%;
+      text-align: center;
+      z-index: 6;
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .env-script-name {
+      font-family: 'Great Vibes', cursive;
+      font-size: 26px;
+      color: #e8ca79;
+      text-shadow: 0 2px 5px rgba(0, 0, 0, 0.9), 0 0 12px rgba(212, 175, 55, 0.4);
+      letter-spacing: 1px;
+    }
+
+    .env-script-sub {
+      font-size: 8.5px;
+      letter-spacing: 3px;
+      color: rgba(232, 202, 121, 0.7);
+      text-transform: uppercase;
+      font-weight: 600;
+      margin-top: -2px;
+    }
+
+    /* 3D Royal Wax Seal Button */
     .wax-seal {
       position: absolute;
-      top: 105px;
+      top: 108px;
       left: 50%;
       transform: translate(-50%, -50%);
-      width: 68px;
-      height: 68px;
-      background: radial-gradient(circle at 35% 35%, #b3253b 0%, #680d1d 80%);
+      width: 76px;
+      height: 76px;
+      background: radial-gradient(circle at 35% 30%, #9e192f 0%, #680d1d 55%, #38040d 100%);
       border-radius: 50%;
-      box-shadow: 0 6px 16px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.35), inset 0 -3px 6px rgba(0,0,0,0.6);
       display: flex;
       align-items: center;
       justify-content: center;
       z-index: 10;
-      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
       cursor: pointer;
+      animation: sealGlow 2.5s infinite ease-in-out;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
     }
 
-    .wax-seal::before {
-      content: '';
-      position: absolute;
-      width: 52px;
-      height: 52px;
-      border: 1.5px dashed rgba(255, 230, 160, 0.45);
+    @keyframes sealGlow {
+      0% {
+        box-shadow: 
+          0 10px 25px rgba(0, 0, 0, 0.8),
+          inset 0 2px 5px rgba(255, 255, 255, 0.45),
+          inset 0 -4px 8px rgba(0, 0, 0, 0.85),
+          0 0 0 0 rgba(212, 175, 55, 0.7);
+      }
+      60% {
+        box-shadow: 
+          0 10px 25px rgba(0, 0, 0, 0.8),
+          inset 0 2px 5px rgba(255, 255, 255, 0.45),
+          inset 0 -4px 8px rgba(0, 0, 0, 0.85),
+          0 0 0 16px rgba(212, 175, 55, 0);
+      }
+      100% {
+        box-shadow: 
+          0 10px 25px rgba(0, 0, 0, 0.8),
+          inset 0 2px 5px rgba(255, 255, 255, 0.45),
+          inset 0 -4px 8px rgba(0, 0, 0, 0.85),
+          0 0 0 0 rgba(212, 175, 55, 0);
+      }
+    }
+
+    .seal-inner-stamp {
+      width: 58px;
+      height: 58px;
+      border: 1.5px dashed rgba(255, 225, 140, 0.55);
       border-radius: 50%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
     }
 
-    .wax-seal span {
-      font-size: 26px;
-      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+    .seal-monogram {
+      font-family: 'Cormorant Garamond', serif;
+      font-weight: 700;
+      font-size: 16px;
+      color: #ffd77a;
+      letter-spacing: 1.5px;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.9), 0 0 6px rgba(255,215,0,0.4);
+      margin-top: -1px;
     }
 
     .envelope-hint {
-      margin-top: 40px;
-      font-size: 13px;
-      letter-spacing: 2px;
-      color: var(--gold-light);
+      margin-top: 45px;
+      font-size: 12px;
+      letter-spacing: 2.5px;
+      color: #e8ca79;
       text-transform: uppercase;
-      font-weight: 500;
+      font-weight: 600;
       text-align: center;
-      animation: pulseText 2s infinite ease-in-out;
+      animation: pulseText 2.2s infinite ease-in-out;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.4);
     }
 
     @keyframes pulseText {
-      0%, 100% { opacity: 0.6; transform: scale(1); }
+      0%, 100% { opacity: 0.7; transform: scale(1); }
       50% { opacity: 1; transform: scale(1.03); }
     }
 
@@ -249,7 +351,7 @@
     }
 
     .envelope-container.open .envelope-letter {
-      transform: translateY(-90px) scale(1.05);
+      transform: translateY(-105px) scale(1.04);
       z-index: 6;
     }
 
@@ -584,31 +686,63 @@
   <!-- Interactive Floating Background Particles -->
   <canvas id="particle-canvas"></canvas>
 
-  <!-- INTRO: WAX-SEALED LUXURY ENVELOPE -->
+  <!-- INTRO: LUXURY ROYAL BURGUNDY & GOLD FOIL ENVELOPE -->
   <div id="envelope-screen">
+    <div class="ambient-glow"></div>
+
     <div class="envelope-container" id="envelope-box" onclick="openEnvelope()">
       <div class="envelope-back"></div>
       
       <!-- Letter inside -->
       <div class="envelope-letter">
-        <div class="letter-preview-sub">СВАТБЕН ПОЗДРАВ</div>
+        <div class="letter-preview-sub">В ЧЕСТ НА ВАШАТА ЛЮБОВ</div>
         <div class="letter-preview-title">Жоро & Силвия</div>
-        <div class="letter-preview-sub" style="color: #666; font-size: 10px;">12.09.2026</div>
+        <div class="letter-preview-sub" style="color: #887050; font-size: 9px; margin-top: 2px;">12 СЕПТЕМВРИ 2026 г.</div>
       </div>
 
       <div class="envelope-front-left"></div>
       <div class="envelope-front-right"></div>
       <div class="envelope-front-bottom"></div>
-      <div class="envelope-flap"></div>
 
-      <!-- Wax Seal -->
+      <!-- Calligraphy label on bottom flap -->
+      <div class="envelope-calligraphy-overlay">
+        <span class="env-script-name">За Жоро & Силвия</span>
+        <span class="env-script-sub">СПЕЦИАЛНА СВАТБЕНА ПОКАНА</span>
+      </div>
+
+      <!-- Flap with gold foil line -->
+      <div class="envelope-flap">
+        <svg class="flap-gold-svg" viewBox="0 0 330 135">
+          <defs>
+            <linearGradient id="goldGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" stop-color="#b38728"/>
+              <stop offset="50%" stop-color="#fbf5b7"/>
+              <stop offset="100%" stop-color="#aa771c"/>
+            </linearGradient>
+          </defs>
+          <path d="M 8 6 L 165 125 L 322 6" stroke="url(#goldGrad)" stroke-width="2.5" fill="none"/>
+          <path d="M 18 6 L 165 116 L 312 6" stroke="url(#goldGrad)" stroke-width="1" stroke-dasharray="3,3" fill="none" opacity="0.8"/>
+          <circle cx="165" cy="120" r="3" fill="#fbf5b7"/>
+        </svg>
+      </div>
+
+      <!-- Royal Wax Seal -->
       <div class="wax-seal">
-        <span>❤️</span>
+        <div class="seal-inner-stamp">
+          <svg width="30" height="18" viewBox="0 0 44 26" fill="none">
+            <circle cx="16" cy="14" r="9" stroke="#ffd77a" stroke-width="2.2" fill="none" opacity="0.95"/>
+            <circle cx="28" cy="11" r="9" stroke="#ffd77a" stroke-width="2.2" fill="none" opacity="0.95"/>
+            <polygon points="28,1 32,5 24,5" fill="#ffffff"/>
+          </svg>
+          <div class="seal-monogram">Ж &bull; С</div>
+        </div>
       </div>
     </div>
 
     <div class="envelope-hint">
-      <span>✨</span> Докоснете, за да отворите <span>✨</span>
+      <span style="color: #ffd77a;">✦</span>
+      <span>ДОКОСНЕТЕ ПЕЧАТА, ЗА ДА ОТВОРИТЕ</span>
+      <span style="color: #ffd77a;">✦</span>
     </div>
   </div>
 
@@ -714,19 +848,19 @@
       // Start music playback immediately upon user gesture
       startMusic();
 
-      // Launch heart explosion
+      // Launch heart & sparkle explosion
       burstHearts(window.innerWidth / 2, window.innerHeight / 2);
 
-      // Reveal main content smoothly
+      // Reveal main content smoothly after letter reveals
       setTimeout(() => {
         const env = document.getElementById('envelope-screen');
         env.style.opacity = '0';
         env.style.pointerEvents = 'none';
         setTimeout(() => {
           env.style.display = 'none';
-        }, 450);
+        }, 500);
         document.getElementById('main-content').classList.add('visible');
-      }, 600);
+      }, 850);
     }
 
     // --- AUDIO PLAYBACK ---
