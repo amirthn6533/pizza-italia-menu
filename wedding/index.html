@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="bg">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Жоро & Силвия • Заедно Завинаги 💍</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --gold: #d4af37;
+      --gold-light: #f7e7a9;
+      --gold-dark: #aa820a;
+      --gold-gradient: linear-gradient(135deg, #fdf6d8 0%, #d4af37 50%, #997300 100%);
+      --bg-dark: #0d080a;
+      --bg-card: rgba(28, 17, 21, 0.75);
+      --wine: #72162c;
+      --rose: #e27d8d;
+      --text: #fbf8f5;
+      --text-muted: #d5c8c5;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      background: radial-gradient(circle at center, #220f16 0%, #0d080a 100%);
+      color: var(--text);
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* Particle Canvas */
+    #particle-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* --- INTRO SCREEN: LUXURY WAX-SEALED ENVELOPE --- */
+    #envelope-screen {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at center, #28121a 0%, #0a0507 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      transition: opacity 0.4s ease, visibility 0.4s ease;
+      padding: 20px;
+      perspective: 1200px;
+    }
+
+    .envelope-container {
+      position: relative;
+      width: 320px;
+      height: 220px;
+      cursor: pointer;
+      transition: transform 0.4s ease;
+      filter: drop-shadow(0 25px 35px rgba(0, 0, 0, 0.8));
+    }
+
+    .envelope-container:active {
+      transform: scale(0.97);
+    }
+
+    .envelope-back {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(145deg, #f4ecd8 0%, #e2d2b5 100%);
+      border-radius: 12px;
+      box-shadow: inset 0 0 40px rgba(180, 150, 100, 0.3);
+      border: 1px solid rgba(212, 175, 55, 0.4);
+    }
+
+    .envelope-letter {
+      position: absolute;
+      width: 90%;
+      height: 90%;
+      top: 5%;
+      left: 5%;
+      background: #fffdf9;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 15px;
+      text-align: center;
+      transition: transform 1.2s cubic-bezier(0.2, 0.8, 0.2, 1);
+      z-index: 2;
+    }
+
+    .letter-preview-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: 36px;
+      color: #72162c;
+      line-height: 1.1;
+      margin-bottom: 4px;
+    }
+
+    .letter-preview-sub {
+      font-size: 11px;
+      letter-spacing: 2px;
+      color: #947a50;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .envelope-front-left {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 110px 0 110px 160px;
+      border-color: transparent transparent transparent #eeddbf;
+      z-index: 3;
+      filter: drop-shadow(3px 0 5px rgba(0,0,0,0.06));
+    }
+
+    .envelope-front-right {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 110px 160px 110px 0;
+      border-color: transparent #e9d5b4 transparent transparent;
+      z-index: 3;
+      filter: drop-shadow(-3px 0 5px rgba(0,0,0,0.06));
+    }
+
+    .envelope-front-bottom {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 160px 125px 160px;
+      border-color: transparent transparent #dfc9a6 transparent;
+      border-bottom-left-radius: 12px;
+      border-bottom-right-radius: 12px;
+      z-index: 4;
+      filter: drop-shadow(0 -3px 6px rgba(0,0,0,0.08));
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 130px 160px 0 160px;
+      border-color: #f7eedb transparent transparent transparent;
+      border-top-left-radius: 12px;
+      border-top-right-radius: 12px;
+      z-index: 5;
+      transform-origin: top center;
+      transition: transform 0.9s cubic-bezier(0.4, 0, 0.2, 1), z-index 0.2s 0.3s;
+      filter: drop-shadow(0 4px 10px rgba(0,0,0,0.12));
+    }
+
+    /* Wax Seal Button */
+    .wax-seal {
+      position: absolute;
+      top: 105px;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 68px;
+      height: 68px;
+      background: radial-gradient(circle at 35% 35%, #b3253b 0%, #680d1d 80%);
+      border-radius: 50%;
+      box-shadow: 0 6px 16px rgba(0,0,0,0.4), inset 0 2px 4px rgba(255,255,255,0.35), inset 0 -3px 6px rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275), opacity 0.4s ease;
+      cursor: pointer;
+    }
+
+    .wax-seal::before {
+      content: '';
+      position: absolute;
+      width: 52px;
+      height: 52px;
+      border: 1.5px dashed rgba(255, 230, 160, 0.45);
+      border-radius: 50%;
+    }
+
+    .wax-seal span {
+      font-size: 26px;
+      filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+    }
+
+    .envelope-hint {
+      margin-top: 40px;
+      font-size: 13px;
+      letter-spacing: 2px;
+      color: var(--gold-light);
+      text-transform: uppercase;
+      font-weight: 500;
+      text-align: center;
+      animation: pulseText 2s infinite ease-in-out;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    @keyframes pulseText {
+      0%, 100% { opacity: 0.6; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.03); }
+    }
+
+    /* Open State Animation */
+    .envelope-container.open .envelope-flap {
+      transform: rotateX(180deg);
+      z-index: 1;
+    }
+
+    .envelope-container.open .wax-seal {
+      transform: translate(-50%, -50%) scale(0);
+      opacity: 0;
+    }
+
+    .envelope-container.open .envelope-letter {
+      transform: translateY(-90px) scale(1.05);
+      z-index: 6;
+    }
+
+    /* --- MAIN WEDDING EXPERIENCE CONTAINER --- */
+    #main-content {
+      position: relative;
+      z-index: 10;
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 16px 16px 80px 16px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      opacity: 0;
+      transform: translateY(30px);
+      transition: opacity 1.2s ease, transform 1.2s ease;
+    }
+
+    #main-content.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Top Floating Music Controller Bar */
+    .music-bar {
+      position: sticky;
+      top: 12px;
+      width: 100%;
+      max-width: 480px;
+      background: rgba(35, 18, 24, 0.85);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      border-radius: 40px;
+      padding: 8px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+      z-index: 100;
+    }
+
+    .music-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      overflow: hidden;
+    }
+
+    .vinyl-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: radial-gradient(circle, #222 25%, #d4af37 26%, #111 60%, #444 62%, #111 100%);
+      border: 1px solid #d4af37;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      animation: spin 4s linear infinite;
+      animation-play-state: paused;
+    }
+
+    .vinyl-icon.playing {
+      animation-play-state: running;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    .music-text-track {
+      font-size: 11.5px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .music-text-artist {
+      font-size: 9.5px;
+      color: var(--gold-light);
+      letter-spacing: 0.5px;
+    }
+
+    .music-play-btn {
+      background: var(--gold-gradient);
+      color: #000;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+      flex-shrink: 0;
+      box-shadow: 0 4px 10px rgba(212, 175, 55, 0.4);
+      transition: transform 0.2s;
+    }
+
+    .music-play-btn:active {
+      transform: scale(0.9);
+    }
+
+    /* Wedding Header Title */
+    .wedding-header {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .header-sub-top {
+      font-size: 11px;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 4px;
+      font-weight: 500;
+    }
+
+    .couple-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: 54px;
+      background: var(--gold-gradient);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      line-height: 1.15;
+      text-shadow: 0 4px 15px rgba(212, 175, 55, 0.2);
+    }
+
+    .date-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(212, 175, 55, 0.12);
+      border: 1px solid rgba(212, 175, 55, 0.35);
+      padding: 5px 14px;
+      border-radius: 20px;
+      font-size: 11.5px;
+      color: var(--gold-light);
+      margin-top: 8px;
+      letter-spacing: 1px;
+    }
+
+    /* Countdown Timer Box */
+    .countdown-card {
+      width: 100%;
+      max-width: 480px;
+      background: var(--bg-card);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      border: 1px solid rgba(212, 175, 55, 0.25);
+      border-radius: 16px;
+      padding: 14px 18px;
+      margin-bottom: 24px;
+      text-align: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+    }
+
+    .countdown-title {
+      font-size: 11px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold-light);
+      margin-bottom: 10px;
+      font-weight: 600;
+    }
+
+    .countdown-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .time-slot {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(212, 175, 55, 0.15);
+      border-radius: 10px;
+      padding: 8px 4px;
+    }
+
+    .time-num {
+      font-size: 22px;
+      font-weight: 700;
+      color: #fff;
+      font-family: 'Montserrat', sans-serif;
+      line-height: 1;
+    }
+
+    .time-label {
+      font-size: 9px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: var(--gold-light);
+      margin-top: 4px;
+    }
+
+    /* Poster Frame & Presentation */
+    .poster-outer-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 460px;
+      margin-bottom: 24px;
+    }
+
+    .poster-frame {
+      position: relative;
+      background: #fff;
+      padding: 8px;
+      border-radius: 12px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 0 2px rgba(212, 175, 55, 0.5);
+      overflow: hidden;
+      transition: transform 0.4s ease, box-shadow 0.4s ease;
+    }
+
+    .poster-frame:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 28px 60px rgba(0, 0, 0, 0.9), 0 0 30px rgba(212, 175, 55, 0.3);
+    }
+
+    .poster-image {
+      width: 100%;
+      height: auto;
+      display: block;
+      border-radius: 6px;
+      border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    /* Action Buttons Bar */
+    .actions-bar {
+      display: flex;
+      gap: 12px;
+      width: 100%;
+      max-width: 460px;
+      margin-bottom: 24px;
+    }
+
+    .btn-action {
+      flex: 1;
+      padding: 13px 16px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .btn-action:active {
+      transform: scale(0.97);
+    }
+
+    .btn-download {
+      background: var(--gold-gradient);
+      color: #111;
+      border: none;
+      box-shadow: 0 6px 18px rgba(212, 175, 55, 0.35);
+    }
+
+    .btn-wishes {
+      background: rgba(255, 255, 255, 0.08);
+      color: #fff;
+      border: 1px solid rgba(212, 175, 55, 0.4);
+      backdrop-filter: blur(8px);
+    }
+
+    /* Message Card From Amir */
+    .amir-card {
+      width: 100%;
+      max-width: 460px;
+      background: linear-gradient(145deg, rgba(40, 18, 25, 0.8) 0%, rgba(20, 10, 14, 0.9) 100%);
+      border: 1px solid rgba(212, 175, 55, 0.3);
+      border-radius: 16px;
+      padding: 20px;
+      text-align: center;
+      position: relative;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .amir-card-title {
+      font-family: 'Great Vibes', cursive;
+      font-size: 32px;
+      color: var(--gold-light);
+      margin-bottom: 8px;
+    }
+
+    .amir-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 18px;
+      font-style: italic;
+      line-height: 1.5;
+      color: #fff;
+      margin-bottom: 12px;
+    }
+
+    .amir-signature {
+      font-size: 14px;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    /* Footer */
+    .wedding-footer {
+      margin-top: 30px;
+      font-size: 11px;
+      letter-spacing: 1.5px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Audio Element -->
+  <audio id="wedding-audio" preload="auto" loop>
+    <source src="music.m4a" type="audio/mp4">
+    <source src="music.webm" type="audio/webm">
+  </audio>
+
+  <!-- Interactive Floating Background Particles -->
+  <canvas id="particle-canvas"></canvas>
+
+  <!-- INTRO: WAX-SEALED LUXURY ENVELOPE -->
+  <div id="envelope-screen">
+    <div class="envelope-container" id="envelope-box" onclick="openEnvelope()">
+      <div class="envelope-back"></div>
+      
+      <!-- Letter inside -->
+      <div class="envelope-letter">
+        <div class="letter-preview-sub">СВАТБЕН ПОЗДРАВ</div>
+        <div class="letter-preview-title">Жоро & Силвия</div>
+        <div class="letter-preview-sub" style="color: #666; font-size: 10px;">12.09.2026</div>
+      </div>
+
+      <div class="envelope-front-left"></div>
+      <div class="envelope-front-right"></div>
+      <div class="envelope-front-bottom"></div>
+      <div class="envelope-flap"></div>
+
+      <!-- Wax Seal -->
+      <div class="wax-seal">
+        <span>❤️</span>
+      </div>
+    </div>
+
+    <div class="envelope-hint">
+      <span>✨</span> Докоснете, за да отворите <span>✨</span>
+    </div>
+  </div>
+
+  <!-- MAIN EXPERIENCE (Appears after envelope opens) -->
+  <div id="main-content">
+
+    <!-- Music Player Bar -->
+    <div class="music-bar">
+      <div class="music-info">
+        <div class="vinyl-icon" id="vinyl-icon">
+          <span style="font-size: 12px;">🎵</span>
+        </div>
+        <div>
+          <div class="music-text-track">Until I Found You</div>
+          <div class="music-text-artist">Stephen Sanchez • Сватбена мелодия</div>
+        </div>
+      </div>
+      <button class="music-play-btn" id="play-pause-btn" onclick="toggleAudio()">
+        ❚❚
+      </button>
+    </div>
+
+    <!-- Title Header -->
+    <header class="wedding-header">
+      <div class="header-sub-top">В ЧЕСТ НА ВАШАТА ЛЮБОВ</div>
+      <h1 class="couple-title">Жоро & Силвия</h1>
+      <div class="date-badge">
+        <span>💍</span> 12 Септември 2026 г. • 20:00 ч.
+      </div>
+    </header>
+
+    <!-- Countdown Timer -->
+    <div class="countdown-card">
+      <div class="countdown-title" id="countdown-status">ОСТАВАТ ДО НАЧАЛОТО НА ВАШИЯ ПРИКАЗЕН МИГ</div>
+      <div class="countdown-grid">
+        <div class="time-slot">
+          <div class="time-num" id="cd-days">00</div>
+          <div class="time-label">Дни</div>
+        </div>
+        <div class="time-slot">
+          <div class="time-num" id="cd-hours">00</div>
+          <div class="time-label">Часа</div>
+        </div>
+        <div class="time-slot">
+          <div class="time-num" id="cd-minutes">00</div>
+          <div class="time-label">Минути</div>
+        </div>
+        <div class="time-slot">
+          <div class="time-num" id="cd-seconds">00</div>
+          <div class="time-label">Секунди</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Poster Frame -->
+    <div class="poster-outer-wrapper">
+      <div class="poster-frame">
+        <img src="poster.png" alt="Сватбен поздрав за Жоро и Силвия от Амир" class="poster-image" id="wedding-poster-img">
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="actions-bar">
+      <a href="poster.png" download="Zhoro_and_Silvia_Wedding_Poster.png" class="btn-action btn-download">
+        <span>📥</span> Свали плаката
+      </a>
+      <button class="btn-action btn-wishes" onclick="scrollToAmirNote()">
+        <span>💌</span> Пожелание
+      </button>
+    </div>
+
+    <!-- Message Card From Amir -->
+    <div class="amir-card" id="amir-note">
+      <div class="amir-card-title">Специално послание</div>
+      <p class="amir-quote">
+        "Обичам ви и ви пожелавам винаги да бъдете заедно във всеки момент от живота. 
+        Нека пътят ви бъде осеян с безкрайно щастие, топлина и взаимно вдъхновение!"
+      </p>
+      <div class="amir-signature">— Амир —</div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="wedding-footer">
+      Together Always • С много обич от Амир • 2026
+    </footer>
+
+  </div>
+
+  <!-- SCRIPT -->
+  <script>
+    const audio = document.getElementById('wedding-audio');
+    const playBtn = document.getElementById('play-pause-btn');
+    const vinyl = document.getElementById('vinyl-icon');
+    let isPlaying = false;
+
+    // --- ENVELOPE OPENING LOGIC ---
+    function openEnvelope() {
+      const envelope = document.getElementById('envelope-box');
+      if (envelope.classList.contains('open')) return;
+
+      envelope.classList.add('open');
+
+      // Start music playback immediately upon user gesture
+      startMusic();
+
+      // Launch heart explosion
+      burstHearts(window.innerWidth / 2, window.innerHeight / 2);
+
+      // Reveal main content smoothly
+      setTimeout(() => {
+        const env = document.getElementById('envelope-screen');
+        env.style.opacity = '0';
+        env.style.pointerEvents = 'none';
+        setTimeout(() => {
+          env.style.display = 'none';
+        }, 450);
+        document.getElementById('main-content').classList.add('visible');
+      }, 600);
+    }
+
+    // --- AUDIO PLAYBACK ---
+    function startMusic() {
+      audio.volume = 0.85;
+      audio.play().then(() => {
+        isPlaying = true;
+        playBtn.innerHTML = '❚❚';
+        vinyl.classList.add('playing');
+      }).catch(err => {
+        console.log('Audio playback prevented:', err);
+        isPlaying = false;
+        playBtn.innerHTML = '▶';
+        vinyl.classList.remove('playing');
+      });
+    }
+
+    function toggleAudio() {
+      if (audio.paused) {
+        audio.play();
+        isPlaying = true;
+        playBtn.innerHTML = '❚❚';
+        vinyl.classList.add('playing');
+      } else {
+        audio.pause();
+        isPlaying = false;
+        playBtn.innerHTML = '▶';
+        vinyl.classList.remove('playing');
+      }
+    }
+
+    function scrollToAmirNote() {
+      document.getElementById('amir-note').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // --- WEDDING COUNTDOWN TIMER ---
+    // Wedding Date: 12 September 2026 at 20:00:00
+    const weddingDate = new Date('2026-09-12T20:00:00');
+
+    function updateCountdown() {
+      const now = new Date();
+      const diff = weddingDate - now;
+
+      if (diff <= 0) {
+        document.getElementById('countdown-status').innerText = '🎉 ЧЕСТИТО СВАТБА! ВЕЧНА И СПОДЕЛЕНА ЛЮБОВ! 💍✨';
+        document.getElementById('cd-days').innerText = '00';
+        document.getElementById('cd-hours').innerText = '00';
+        document.getElementById('cd-minutes').innerText = '00';
+        document.getElementById('cd-seconds').innerText = '00';
+        return;
+      }
+
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+      const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+      const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+
+      document.getElementById('cd-days').innerText = String(days).padStart(2, '0');
+      document.getElementById('cd-hours').innerText = String(hours).padStart(2, '0');
+      document.getElementById('cd-minutes').innerText = String(minutes).padStart(2, '0');
+      document.getElementById('cd-seconds').innerText = String(seconds).padStart(2, '0');
+    }
+
+    setInterval(updateCountdown, 1000);
+    updateCountdown();
+
+    // --- FLOATING HEARTS & PARTICLES CANVAS ---
+    const canvas = document.getElementById('particle-canvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    });
+
+    const particles = [];
+    const colors = ['#d4af37', '#f7e7a9', '#e27d8d', '#ffb6c1', '#ffffff'];
+
+    class Particle {
+      constructor(x, y, isHeart = false, speedMult = 1) {
+        this.x = x || Math.random() * width;
+        this.y = y || height + Math.random() * 50;
+        this.size = (isHeart ? 14 : 2) + Math.random() * (isHeart ? 16 : 4);
+        this.isHeart = isHeart || (Math.random() < 0.25);
+        this.color = colors[Math.floor(Math.random() * colors.length)];
+        this.speedY = -(0.5 + Math.random() * 1.5) * speedMult;
+        this.speedX = (Math.random() - 0.5) * 1.2 * speedMult;
+        this.alpha = 0.2 + Math.random() * 0.7;
+        this.rot = Math.random() * Math.PI * 2;
+        this.rotSpeed = (Math.random() - 0.5) * 0.03;
+      }
+
+      draw() {
+        ctx.save();
+        ctx.translate(this.x, this.y);
+        ctx.rotate(this.rot);
+        ctx.globalAlpha = this.alpha;
+
+        if (this.isHeart) {
+          ctx.fillStyle = this.color;
+          ctx.beginPath();
+          const d = this.size;
+          ctx.moveTo(0, 0);
+          ctx.bezierCurveTo(-d / 2, -d / 2, -d, d / 3, 0, d);
+          ctx.bezierCurveTo(d, d / 3, d / 2, -d / 2, 0, 0);
+          ctx.fill();
+        } else {
+          ctx.fillStyle = this.color;
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = this.color;
+          ctx.beginPath();
+          ctx.arc(0, 0, this.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+
+        ctx.restore();
+      }
+
+      update() {
+        this.y += this.speedY;
+        this.x += this.speedX + Math.sin(this.y * 0.02) * 0.4;
+        this.rot += this.rotSpeed;
+        if (this.y < -30) {
+          this.y = height + 20;
+          this.x = Math.random() * width;
+        }
+      }
+    }
+
+    // Initial ambient particles
+    for (let i = 0; i < 35; i++) {
+      particles.push(new Particle(Math.random() * width, Math.random() * height));
+    }
+
+    function burstHearts(x, y) {
+      for (let i = 0; i < 30; i++) {
+        const p = new Particle(x, y, true, 3);
+        p.speedY = -(2 + Math.random() * 6);
+        p.speedX = (Math.random() - 0.5) * 8;
+        particles.push(p);
+      }
+    }
+
+    function animateParticles() {
+      ctx.clearRect(0, 0, width, height);
+      particles.forEach(p => {
+        p.update();
+        p.draw();
+      });
+      requestAnimationFrame(animateParticles);
+    }
+    animateParticles();
+  </script>
+</body>
+</html>
