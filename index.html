@@ -1113,18 +1113,30 @@
         
         <!-- Day Selector Pills -->
         <div class="day-pills-container" id="day-pills">
-          <button type="button" class="day-pill active" onclick="selectDay('Понеделник')">Понеделник</button>
-          <button type="button" class="day-pill" onclick="selectDay('Вторник')">Вторник</button>
-          <button type="button" class="day-pill" onclick="selectDay('Сряда')">Сряда</button>
-          <button type="button" class="day-pill" onclick="selectDay('Четвъртък')">Четвъртък</button>
-          <button type="button" class="day-pill" onclick="selectDay('Петък')">Петък</button>
-          <button type="button" class="day-pill" onclick="selectDay('Събота')">Събота</button>
+          <button type="button" class="day-pill" data-day="Понеделник" onclick="selectDay('Понеделник')">Понеделник</button>
+          <button type="button" class="day-pill" data-day="Вторник" onclick="selectDay('Вторник')">Вторник</button>
+          <button type="button" class="day-pill" data-day="Сряда" onclick="selectDay('Сряда')">Сряда</button>
+          <button type="button" class="day-pill" data-day="Четвъртък" onclick="selectDay('Четвъртък')">Четвъртък</button>
+          <button type="button" class="day-pill" data-day="Петък" onclick="selectDay('Петък')">Петък</button>
+          <button type="button" class="day-pill" data-day="Събота" onclick="selectDay('Събота')">Събота</button>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+          <select id="copy-from-day" class="input-text" style="width: auto; font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15);" onchange="copyMenuFromDay(this.value)">
+            <option value="">📋 Копирай ястия от друг ден...</option>
+            <option value="Понеделник">От Понеделник</option>
+            <option value="Вторник">От Вторник</option>
+            <option value="Сряда">От Сряда</option>
+            <option value="Четвъртък">От Четвъртък</option>
+            <option value="Петък">От Петък</option>
+            <option value="Събота">От Събота</option>
+          </select>
         </div>
 
         <div class="row-grid-3" style="margin-top: 10px;">
           <div>
             <label class="input-label">Избран ден</label>
-            <input type="text" id="cfg-day" class="input-text" value="Понеделник" oninput="onDayNameChange(this.value)">
+            <input type="text" id="cfg-day" class="input-text" value="Понеделник" readonly style="background: rgba(255, 255, 255, 0.05); color: #fff; cursor: default; font-weight: 600;">
           </div>
           <div>
             <label class="input-label">Дата (по избор)</label>
@@ -1355,31 +1367,44 @@
   const todayIdx = new Date().getDay(); // 1=Mon, 5=Fri, 6=Sat
   let currentActiveDay = (todayIdx >= 1 && todayIdx <= 6) ? daysList[todayIdx - 1] : 'Понеделник';
 
+  // Sanitize all stored weeklyData so each day entry's .day matches its key strictly
+  daysList.forEach(d => {
+    if (weeklyData[d]) {
+      weeklyData[d].day = d;
+      if (!weeklyData[d].mains) weeklyData[d].mains = JSON.parse(JSON.stringify(defaultMenu.mains));
+    }
+  });
+
   if (!weeklyData[currentActiveDay]) {
-    // Check old single-day storage or default
-    let oldSingle = JSON.parse(localStorage.getItem('pizza_italia_lunch_menu'));
+    let oldSingle = null;
+    try {
+      oldSingle = JSON.parse(localStorage.getItem('pizza_italia_lunch_menu'));
+    } catch(e) {}
     if (oldSingle && oldSingle.soups) {
       weeklyData[currentActiveDay] = oldSingle;
+      weeklyData[currentActiveDay].day = currentActiveDay;
     } else {
       weeklyData[currentActiveDay] = JSON.parse(JSON.stringify(defaultMenu));
       weeklyData[currentActiveDay].day = currentActiveDay;
     }
+  } else {
+    weeklyData[currentActiveDay].day = currentActiveDay;
   }
 
   let menu = weeklyData[currentActiveDay];
   if (!menu.mains) menu.mains = JSON.parse(JSON.stringify(defaultMenu.mains));
 
   function syncInputsToMenu() {
-    const dayInput = document.getElementById('cfg-day');
     const dateInput = document.getElementById('cfg-date');
     const timeInput = document.getElementById('cfg-time');
-    if (dayInput) menu.day = dayInput.value;
+    menu.day = currentActiveDay; // Strict lock to currently selected day
     if (dateInput) menu.date = dateInput.value.trim();
     if (timeInput) menu.time = timeInput.value;
     saveMenuDataOnly();
   }
 
   function saveMenuDataOnly() {
+    menu.day = currentActiveDay;
     weeklyData[currentActiveDay] = menu;
     localStorage.setItem('pizza_italia_weekly_menus', JSON.stringify(weeklyData));
     localStorage.setItem('pizza_italia_lunch_menu', JSON.stringify(menu));
@@ -1393,17 +1418,19 @@
     currentActiveDay = dayName;
     if (!weeklyData[dayName]) {
       weeklyData[dayName] = JSON.parse(JSON.stringify(defaultMenu));
-      weeklyData[dayName].day = dayName;
     }
     menu = weeklyData[dayName];
+    // CRITICAL: Always enforce that menu.day is identical to the selected dayName
+    menu.day = dayName;
     if (!menu.mains) menu.mains = JSON.parse(JSON.stringify(defaultMenu.mains));
     if (menu.time === undefined || menu.time === null) {
       menu.time = defaultMenu.time;
     }
 
-    // Update pill UI
+    // Update pill UI using data-day or trimmed text
     document.querySelectorAll('.day-pill').forEach(btn => {
-      btn.classList.toggle('active', btn.innerText === dayName);
+      const bDay = btn.getAttribute('data-day') || btn.textContent.trim();
+      btn.classList.toggle('active', bDay === dayName);
     });
 
     renderEditor();
@@ -1411,8 +1438,40 @@
     saveMenuDataOnly();
   }
 
+  function copyMenuFromDay(sourceDay) {
+    if (!sourceDay) return;
+    if (sourceDay === currentActiveDay) {
+      alert('Вече сте избрали ' + sourceDay + '.');
+      const sel = document.getElementById('copy-from-day');
+      if (sel) sel.value = '';
+      return;
+    }
+    if (!weeklyData[sourceDay]) {
+      alert('Няма запазено меню за ' + sourceDay + '.');
+      const sel = document.getElementById('copy-from-day');
+      if (sel) sel.value = '';
+      return;
+    }
+    if (confirm(`Искате ли да копирате всички ястия от ${sourceDay} в ${currentActiveDay}?`)) {
+      const src = weeklyData[sourceDay];
+      menu.soups = JSON.parse(JSON.stringify(src.soups || []));
+      menu.salads = JSON.parse(JSON.stringify(src.salads || []));
+      menu.mains = JSON.parse(JSON.stringify(src.mains || []));
+      menu.pizzas = JSON.parse(JSON.stringify(src.pizzas || []));
+      if (src.time) menu.time = src.time;
+      menu.day = currentActiveDay;
+      saveMenuDataOnly();
+      renderEditor();
+      renderPrintPreview();
+      alert(`✅ Ястията от ${sourceDay} бяха копирани в ${currentActiveDay}!`);
+    }
+    const sel = document.getElementById('copy-from-day');
+    if (sel) sel.value = '';
+  }
+
   function onDayNameChange(val) {
-    menu.day = val;
+    // Kept for backward compatibility if needed, but day is locked to currentActiveDay
+    menu.day = currentActiveDay;
     saveMenuDataOnly();
     renderPrintPreview();
   }
@@ -1463,7 +1522,7 @@
 
   function renderEditor() {
     if (document.getElementById('cfg-day')) {
-      document.getElementById('cfg-day').value = menu.day || currentActiveDay || 'Понеделник';
+      document.getElementById('cfg-day').value = currentActiveDay;
     }
     if (document.getElementById('cfg-date')) {
       document.getElementById('cfg-date').value = menu.date || '';
@@ -1570,6 +1629,8 @@
   function resetDefaults() {
     if (confirm('Да заредя ли примерното меню на Pizza Italia?')) {
       menu = JSON.parse(JSON.stringify(defaultMenu));
+      menu.day = currentActiveDay;
+      weeklyData[currentActiveDay] = menu;
       saveMenuDataOnly();
       renderEditor();
       renderPrintPreview();
@@ -1713,11 +1774,15 @@
         if (parsed.weeklyData) {
           // Version 2 payload: contains all days
           weeklyData = parsed.weeklyData;
+          daysList.forEach(d => {
+            if (weeklyData[d]) weeklyData[d].day = d;
+          });
           localStorage.setItem('pizza_italia_weekly_menus', JSON.stringify(weeklyData));
           if (parsed.activeDay && weeklyData[parsed.activeDay]) {
             currentActiveDay = parsed.activeDay;
           }
           menu = weeklyData[currentActiveDay];
+          menu.day = currentActiveDay;
           if (!menu.mains) menu.mains = [];
           if (menu.time === undefined || menu.time === null) menu.time = defaultMenu.time;
           localStorage.setItem('pizza_italia_lunch_menu', JSON.stringify(menu));
@@ -1804,8 +1869,8 @@
     }
   }
 
-  // Initialize
-  renderMenu();
+  // Initialize with the current active day
+  selectDay(currentActiveDay, true);
   setPaperFormat(currentPaperFormat);
   checkUrlHashLoad();
 </script>
