@@ -1103,9 +1103,14 @@
       <div class="card">
         <div class="week-banner">
           <span id="week-info-label">🗓️ Меню за текущата седмица</span>
-          <button onclick="clearCurrentWeekPrompt()" style="background: none; border: none; color: #f4212e; font-size: 11px; cursor: pointer; text-decoration: underline;">
-            🗑️ Нова седмица (Изчисти)
-          </button>
+          <div style="display: flex; gap: 8px;">
+            <button onclick="clearCurrentDayPrompt()" style="background: none; border: none; color: #ffaa44; font-size: 11px; cursor: pointer; text-decoration: underline;">
+              🗑️ Изчисти деня
+            </button>
+            <button onclick="clearCurrentWeekPrompt()" style="background: none; border: none; color: #f4212e; font-size: 11px; cursor: pointer; text-decoration: underline;">
+              🗑️ Нова седмица
+            </button>
+          </div>
         </div>
         <div class="card-header">
           <span class="card-title">📅 Избери ден за редакция</span>
@@ -1308,8 +1313,31 @@
   </div>
 
 <script>
-  // Initial menu state
+  // Default blank template ready for writing (no pre-filled sample text)
   const defaultMenu = {
+    day: 'Понеделник',
+    date: '',
+    time: '11:30 – 15:30 ч.',
+    soups: [
+      { name: '', desc: '', grams: '350', price: '' },
+      { name: '', desc: '', grams: '350', price: '' }
+    ],
+    salads: [
+      { name: '', desc: '', grams: '350', price: '' },
+      { name: '', desc: '', grams: '350', price: '' }
+    ],
+    mains: [
+      { name: '', desc: '', grams: '380', price: '' },
+      { name: '', desc: '', grams: '400', price: '' }
+    ],
+    pizzas: [
+      { name: '', desc: '', grams: '420', price: '' },
+      { name: '', desc: '', grams: '450', price: '' }
+    ]
+  };
+
+  // Sample menu (loaded ONLY when user clicks 'Пример')
+  const sampleMenu = {
     day: 'Понеделник',
     date: '',
     time: '11:30 – 15:30 ч.',
@@ -1367,26 +1395,29 @@
   const todayIdx = new Date().getDay(); // 1=Mon, 5=Fri, 6=Sat
   let currentActiveDay = (todayIdx >= 1 && todayIdx <= 6) ? daysList[todayIdx - 1] : 'Понеделник';
 
-  // Sanitize all stored weeklyData so each day entry's .day matches its key strictly
+  // Helper to detect if a stored day is using old sample dishes
+  function isOldSampleData(m) {
+    if (!m || !m.soups) return false;
+    return m.soups.some(s => s.name === 'Домашна пилешка супа' || s.name === 'Крем-супа от манатарки');
+  }
+
+  // Sanitize stored data: clean any old sample dishes and guarantee .day matches key
   daysList.forEach(d => {
     if (weeklyData[d]) {
+      if (isOldSampleData(weeklyData[d])) {
+        // Automatically convert old sample data to clean blank slots ready for typing!
+        const blankDay = JSON.parse(JSON.stringify(defaultMenu));
+        blankDay.day = d;
+        weeklyData[d] = blankDay;
+      }
       weeklyData[d].day = d;
       if (!weeklyData[d].mains) weeklyData[d].mains = JSON.parse(JSON.stringify(defaultMenu.mains));
     }
   });
 
   if (!weeklyData[currentActiveDay]) {
-    let oldSingle = null;
-    try {
-      oldSingle = JSON.parse(localStorage.getItem('pizza_italia_lunch_menu'));
-    } catch(e) {}
-    if (oldSingle && oldSingle.soups) {
-      weeklyData[currentActiveDay] = oldSingle;
-      weeklyData[currentActiveDay].day = currentActiveDay;
-    } else {
-      weeklyData[currentActiveDay] = JSON.parse(JSON.stringify(defaultMenu));
-      weeklyData[currentActiveDay].day = currentActiveDay;
-    }
+    weeklyData[currentActiveDay] = JSON.parse(JSON.stringify(defaultMenu));
+    weeklyData[currentActiveDay].day = currentActiveDay;
   } else {
     weeklyData[currentActiveDay].day = currentActiveDay;
   }
@@ -1582,16 +1613,17 @@
     ['soups', 'salads', 'mains', 'pizzas'].forEach(cat => {
       const listEl = document.getElementById('print-' + cat + '-list');
       if (listEl && menu[cat]) {
-        listEl.innerHTML = menu[cat].map(item => `
+        const validItems = menu[cat].filter(item => item.name && item.name.trim() !== '');
+        listEl.innerHTML = validItems.map(item => `
           <div style="margin-bottom: 3px;">
             <div class="menu-row">
               <div class="menu-left-part">
                 <span class="menu-item-name">${escapeHtml(item.name)}</span>
-                <span class="menu-item-grams">${escapeHtml(item.grams)} гр</span>
+                ${item.grams ? `<span class="menu-item-grams">${escapeHtml(item.grams)} гр</span>` : ''}
               </div>
               <div class="menu-dots"></div>
               <div class="menu-right-part">
-                <span class="menu-price">${escapeHtml(item.price)} €</span>
+                <span class="menu-price">${escapeHtml(item.price)}${item.price ? ' €' : ''}</span>
               </div>
             </div>
             ${item.desc ? `<div class="menu-desc-print">${escapeHtml(item.desc)}</div>` : ''}
@@ -1607,7 +1639,7 @@
   }
 
   function addItem(cat) {
-    menu[cat].push({ name: '', desc: '', grams: '350', price: '5.00' });
+    menu[cat].push({ name: '', desc: '', grams: '350', price: '' });
     saveMenuDataOnly();
     renderEditor();
     renderPrintPreview();
@@ -1627,7 +1659,18 @@
   }
 
   function resetDefaults() {
-    if (confirm('Да заредя ли примерното меню на Pizza Italia?')) {
+    if (confirm('Да заредя ли примерното меню на Pizza Italia с готови примерни ястия?')) {
+      menu = JSON.parse(JSON.stringify(sampleMenu));
+      menu.day = currentActiveDay;
+      weeklyData[currentActiveDay] = menu;
+      saveMenuDataOnly();
+      renderEditor();
+      renderPrintPreview();
+    }
+  }
+
+  function clearCurrentDayPrompt() {
+    if (confirm(`Искате ли да изчистите всички ястия за ${currentActiveDay} и да оставите празни полета за писане?`)) {
       menu = JSON.parse(JSON.stringify(defaultMenu));
       menu.day = currentActiveDay;
       weeklyData[currentActiveDay] = menu;
