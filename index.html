@@ -10,6 +10,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Pizza Italia">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Carlito:ital,wght@0,400;0,700;1,400;1,700&display=swap" rel="stylesheet">
@@ -1397,23 +1400,47 @@
 
   // Helper to detect if a stored day is using old sample dishes
   function isOldSampleData(m) {
-    if (!m || !m.soups) return false;
-    return m.soups.some(s => s.name === 'Домашна пилешка супа' || s.name === 'Крем-супа от манатарки');
+    if (!m) return false;
+    const oldKeywords = [
+      'Домашна пилешка супа', 'Крем-супа от манатарки',
+      'Шопска салата', 'Салата Цезар',
+      'Свински врат', 'Пилешко филе четири сирена',
+      'Пица Маргарита Класик', 'Пица Капричоза'
+    ];
+    for (const cat of ['soups', 'salads', 'mains', 'pizzas']) {
+      if (m[cat] && m[cat].some(item => oldKeywords.some(kw => (item.name || '').includes(kw)))) {
+        return true;
+      }
+    }
+    return false;
   }
+
+  // One-time automatic cleanup to make sure all cached browsers start with fresh blank fields
+  const MIGRATION_KEY = 'pizza_italia_blank_v2';
+  const hasMigrated = localStorage.getItem(MIGRATION_KEY);
+  let needsStorageSave = false;
 
   // Sanitize stored data: clean any old sample dishes and guarantee .day matches key
   daysList.forEach(d => {
     if (weeklyData[d]) {
-      if (isOldSampleData(weeklyData[d])) {
-        // Automatically convert old sample data to clean blank slots ready for typing!
+      if (!hasMigrated || isOldSampleData(weeklyData[d])) {
         const blankDay = JSON.parse(JSON.stringify(defaultMenu));
         blankDay.day = d;
         weeklyData[d] = blankDay;
+        needsStorageSave = true;
       }
       weeklyData[d].day = d;
       if (!weeklyData[d].mains) weeklyData[d].mains = JSON.parse(JSON.stringify(defaultMenu.mains));
     }
   });
+
+  if (!hasMigrated) {
+    localStorage.setItem(MIGRATION_KEY, 'true');
+    needsStorageSave = true;
+  }
+  if (needsStorageSave) {
+    localStorage.setItem('pizza_italia_weekly_menus', JSON.stringify(weeklyData));
+  }
 
   if (!weeklyData[currentActiveDay]) {
     weeklyData[currentActiveDay] = JSON.parse(JSON.stringify(defaultMenu));
