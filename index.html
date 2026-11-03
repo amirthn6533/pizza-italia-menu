@@ -1129,16 +1129,45 @@
           <button type="button" class="day-pill" data-day="Събота" onclick="selectDay('Събота')">Събота</button>
         </div>
 
-        <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
-          <select id="copy-from-day" class="input-text" style="width: auto; font-size: 11px; padding: 4px 10px; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.15);" onchange="copyMenuFromDay(this.value)">
-            <option value="">📋 Копирай ястия от друг ден...</option>
-            <option value="Понеделник">От Понеделник</option>
-            <option value="Вторник">От Вторник</option>
-            <option value="Сряда">От Сряда</option>
-            <option value="Четвъртък">От Четвъртък</option>
-            <option value="Петък">От Петък</option>
-            <option value="Събота">От Събота</option>
-          </select>
+        <div style="display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center; margin-top: 10px; padding: 8px 10px; background: rgba(255, 255, 255, 0.03); border: 1px dashed rgba(255, 255, 255, 0.12); border-radius: 8px;">
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; align-items: center;">
+            <span style="font-size: 11px; color: #ffaa44; font-weight: 600;">⚡ Действия за деня:</span>
+            
+            <!-- Move current menu to another day -->
+            <select id="move-to-day" class="input-text" style="width: auto; font-size: 11px; padding: 5px 8px; background: #232d45; color: #ffaa44; border-color: #ffaa44; border-radius: 6px; cursor: pointer;" onchange="handleDayTransfer('move', this.value)">
+              <option value="">📦 Премести в друг ден...</option>
+              <option value="Понеделник">Премести в Понеделник</option>
+              <option value="Вторник">Премести във Вторник</option>
+              <option value="Сряда">Премести в Сряда</option>
+              <option value="Четвъртък">Премести в Четвъртък</option>
+              <option value="Петък">Премести в Петък</option>
+              <option value="Събота">Премести в Събота</option>
+            </select>
+
+            <!-- Duplicate current menu to another day -->
+            <select id="copy-to-day" class="input-text" style="width: auto; font-size: 11px; padding: 5px 8px; background: #232d45; color: #a5b4fc; border-color: #6366f1; border-radius: 6px; cursor: pointer;" onchange="handleDayTransfer('copy', this.value)">
+              <option value="">📑 Копирай в друг ден...</option>
+              <option value="Понеделник">Копирай в Понеделник</option>
+              <option value="Вторник">Копирай във Вторник</option>
+              <option value="Сряда">Копирай в Сряда</option>
+              <option value="Четвъртък">Копирай в Четвъртък</option>
+              <option value="Петък">Копирай в Петък</option>
+              <option value="Събота">Копирай в Събота</option>
+            </select>
+          </div>
+
+          <!-- Copy from another day -->
+          <div>
+            <select id="copy-from-day" class="input-text" style="width: auto; font-size: 11px; padding: 5px 8px; background: rgba(255,255,255,0.06); border-color: rgba(255,255,255,0.2); border-radius: 6px; cursor: pointer;" onchange="copyMenuFromDay(this.value)">
+              <option value="">📥 Зареди от друг ден...</option>
+              <option value="Понеделник">от Понеделник</option>
+              <option value="Вторник">от Вторник</option>
+              <option value="Сряда">от Сряда</option>
+              <option value="Четвъртък">от Четвъртък</option>
+              <option value="Петък">от Петък</option>
+              <option value="Събота">от Събота</option>
+            </select>
+          </div>
         </div>
 
         <div class="row-grid-3" style="margin-top: 10px;">
@@ -1147,12 +1176,17 @@
             <input type="text" id="cfg-day" class="input-text" value="Понеделник" readonly style="background: rgba(255, 255, 255, 0.05); color: #fff; cursor: default; font-weight: 600;">
           </div>
           <div>
-            <label class="input-label">Дата (по избор)</label>
-            <input type="text" id="cfg-date" class="input-text" placeholder="напр. 08.09.2026" oninput="onDateChange(this.value)">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
+              <label class="input-label" style="margin-bottom: 0;">Дата (по избор)</label>
+              <button type="button" onclick="fillAutoDate()" style="background: none; border: none; color: #ffaa44; font-size: 11px; cursor: pointer; text-decoration: underline; padding: 0;">
+                ⚡ Авто-дата
+              </button>
+            </div>
+            <input type="text" id="cfg-date" class="input-text" placeholder="напр. 03.11.26г." oninput="onDateChange(this.value)">
           </div>
           <div>
             <label class="input-label">Работно време</label>
-            <input type="text" id="cfg-time" class="input-text" value="11:30 – 15:30 ч." oninput="onTimeChange(this.value)">
+            <input type="text" id="cfg-time" class="input-text" value="11:30 – 14:30 ч." oninput="onTimeChange(this.value)">
           </div>
         </div>
       </div>
@@ -1316,50 +1350,56 @@
   </div>
 
 <script>
-  // Default blank template ready for writing (no pre-filled sample text)
+  // Standard category weights & prices according to menu photo (fixed defaults, editable anytime)
+  const categoryDefaults = {
+    soups:  { grams: '400', price: '3.99' },
+    salads: { grams: '250', price: '6.99' },
+    mains:  { grams: '350', price: '7.49' },
+    pizzas: { grams: '400', price: '7.99' }
+  };
+
+  // Default blank template ready for writing with standard fixed weights & prices
   const defaultMenu = {
     day: 'Понеделник',
     date: '',
-    time: '11:30 – 15:30 ч.',
+    time: '11:30 – 14:30 ч.',
     soups: [
-      { name: '', desc: '', grams: '350', price: '' },
-      { name: '', desc: '', grams: '350', price: '' }
+      { name: '', desc: '', grams: '400', price: '3.99' },
+      { name: '', desc: '', grams: '400', price: '3.99' }
     ],
     salads: [
-      { name: '', desc: '', grams: '350', price: '' },
-      { name: '', desc: '', grams: '350', price: '' }
+      { name: '', desc: '', grams: '250', price: '6.99' },
+      { name: '', desc: '', grams: '250', price: '6.99' }
     ],
     mains: [
-      { name: '', desc: '', grams: '380', price: '' },
-      { name: '', desc: '', grams: '400', price: '' }
+      { name: '', desc: '', grams: '350', price: '7.49' },
+      { name: '', desc: '', grams: '350', price: '7.49' },
+      { name: '', desc: '', grams: '350', price: '7.49' }
     ],
     pizzas: [
-      { name: '', desc: '', grams: '420', price: '' },
-      { name: '', desc: '', grams: '450', price: '' }
+      { name: '', desc: '', grams: '400', price: '7.99' },
+      { name: '', desc: '', grams: '400', price: '7.99' }
     ]
   };
 
-  // Sample menu (loaded ONLY when user clicks 'Пример')
+  // Sample menu (loaded ONLY when user clicks 'Пример') - from exact printed menu
   const sampleMenu = {
-    day: 'Понеделник',
-    date: '',
-    time: '11:30 – 15:30 ч.',
+    day: 'Вторник',
+    date: '03.11.26г.',
+    time: '11:30 – 14:30 ч.',
     soups: [
-      { name: 'Домашна пилешка супа', desc: 'С пресни зеленчуци, фиде и пресен магданоз', grams: '350', price: '4.90' },
-      { name: 'Крем-супа от манатарки', desc: 'С хрупкави домашни билкови крутони', grams: '350', price: '5.50' }
+      { name: 'Крем супа на деня', desc: '', grams: '400', price: '3.99' }
     ],
     salads: [
-      { name: 'Салата "Капрезе"', desc: 'Белени розови домати, прясна моцарела, домашно босилеково песто', grams: '350', price: '7.90' },
-      { name: 'Салата "Цезар" с хрупкаво пиле', desc: 'Хрупкав айсберг, чери домати, пармезан, крутони и дресинг', grams: '350', price: '8.50' }
+      { name: 'Шопска салата', desc: '', grams: '250', price: '6.99' }
     ],
     mains: [
-      { name: 'Спагети "Карбонара"', desc: 'Оригинално гуанчале, жълтъци, пекорино романо и черен пипер', grams: '380', price: '9.90' },
-      { name: 'Пилешко филе по сицилиански', desc: 'С чери домати, маслини "Таджаска", каперси и печени картофи', grams: '400', price: '10.50' }
+      { name: 'Кашкавал с кори на плоча, домати и краставици', desc: '', grams: '350', price: '7.49' },
+      { name: 'Свинско с картофи и грах', desc: '', grams: '350', price: '7.49' },
+      { name: 'Пилешки бутчета с ориз', desc: '', grams: '350', price: '7.49' }
     ],
     pizzas: [
-      { name: 'Пица "Маргарита" D.O.P.', desc: 'Доматен сос "Сан Марцано", моцарела "Фиор ди лате", пресен босилек', grams: '420', price: '8.90' },
-      { name: 'Пица "Капричоза"', desc: 'Прошуто кото, пресни печурки, артишок и маслини', grams: '450', price: '10.50' },
-      { name: 'Пица "Диавола" (пикантна)', desc: 'Пикантен салам "Спината Калабрезе", моцарела и люти чушки', grams: '440', price: '10.90' }
+      { name: 'Пицета с шунка и гъби', desc: 'доматен сос и моцарела', grams: '400', price: '7.99' }
     ]
   };
 
@@ -1415,18 +1455,49 @@
     return false;
   }
 
-  // One-time automatic cleanup to make sure all cached browsers start with fresh blank fields
-  const MIGRATION_KEY = 'pizza_italia_blank_v2';
+  // Auto-migration for standard weights and prices (400g/3.99€, 250g/6.99€, 350g/7.49€, 400g/7.99€) & 11:30-14:30
+  const MIGRATION_KEY = 'pizza_italia_v4_photo_defaults';
   const hasMigrated = localStorage.getItem(MIGRATION_KEY);
   let needsStorageSave = false;
 
-  // Sanitize stored data: clean any old sample dishes and guarantee .day matches key
+  // Helper to calculate exact date of current week for a given Bulgarian day
+  function getWeeklyDateForDay(dayName) {
+    const dIndex = daysList.indexOf(dayName);
+    if (dIndex === -1) return '';
+    const now = new Date();
+    const currentDayOfWeek = now.getDay(); // 0=Sun, 1=Mon, ..., 6=Sat
+    const mondayOffset = currentDayOfWeek === 0 ? -6 : (1 - currentDayOfWeek);
+    const targetDate = new Date(now);
+    targetDate.setDate(now.getDate() + mondayOffset + dIndex);
+    const dd = String(targetDate.getDate()).padStart(2, '0');
+    const mm = String(targetDate.getMonth() + 1).padStart(2, '0');
+    const yy = String(targetDate.getFullYear()).slice(-2);
+    return `${dd}.${mm}.${yy}г.`;
+  }
+
   daysList.forEach(d => {
     if (weeklyData[d]) {
       if (!hasMigrated || isOldSampleData(weeklyData[d])) {
-        const blankDay = JSON.parse(JSON.stringify(defaultMenu));
-        blankDay.day = d;
-        weeklyData[d] = blankDay;
+        // Apply photo defaults
+        if (!weeklyData[d].time || weeklyData[d].time === '11:30 – 15:30 ч.') {
+          weeklyData[d].time = '11:30 – 14:30 ч.';
+        }
+        ['soups', 'salads', 'mains', 'pizzas'].forEach(cat => {
+          const def = categoryDefaults[cat];
+          if (weeklyData[d][cat]) {
+            weeklyData[d][cat].forEach(item => {
+              if (!item.name || item.name.trim() === '') {
+                item.grams = def.grams;
+                item.price = def.price;
+              }
+            });
+          }
+        });
+        if (isOldSampleData(weeklyData[d])) {
+          const blankDay = JSON.parse(JSON.stringify(defaultMenu));
+          blankDay.day = d;
+          weeklyData[d] = blankDay;
+        }
         needsStorageSave = true;
       }
       weeklyData[d].day = d;
@@ -1478,12 +1549,12 @@
       weeklyData[dayName] = JSON.parse(JSON.stringify(defaultMenu));
     }
     menu = weeklyData[dayName];
-    // CRITICAL: Always enforce that menu.day is identical to the selected dayName
     menu.day = dayName;
-    if (!menu.mains) menu.mains = JSON.parse(JSON.stringify(defaultMenu.mains));
-    if (menu.time === undefined || menu.time === null) {
-      menu.time = defaultMenu.time;
+    if (!menu.time) menu.time = '11:30 – 14:30 ч.';
+    if (!menu.date) {
+      menu.date = getWeeklyDateForDay(dayName);
     }
+    if (!menu.mains) menu.mains = JSON.parse(JSON.stringify(defaultMenu.mains));
 
     // Update pill UI using data-day or trimmed text
     document.querySelectorAll('.day-pill').forEach(btn => {
@@ -1494,6 +1565,64 @@
     renderEditor();
     renderPrintPreview();
     saveMenuDataOnly();
+  }
+
+  function fillAutoDate() {
+    const autoD = getWeeklyDateForDay(currentActiveDay);
+    if (autoD) {
+      const dateEl = document.getElementById('cfg-date');
+      if (dateEl) dateEl.value = autoD;
+      menu.date = autoD;
+      saveMenuDataOnly();
+      renderPrintPreview();
+    }
+  }
+
+  // Move or Copy menu between days (e.g. if user wrote on Monday by mistake and wants it on Tuesday)
+  function handleDayTransfer(action, targetDay) {
+    if (!targetDay) return;
+    if (targetDay === currentActiveDay) {
+      alert('Вече сте избрали ' + currentActiveDay + '. Изберете различен ден.');
+      resetTransferSelects();
+      return;
+    }
+
+    const isMove = action === 'move';
+    const actionName = isMove ? 'ПРЕМЕСТИТЕ' : 'КОПИРАТЕ';
+    const warning = isMove 
+      ? `\n\n⚠️ Менюто за ${currentActiveDay} ще бъде преместено в ${targetDay}, а ${currentActiveDay} ще остане чисто за ново въвеждане.`
+      : `\n\n(Менюто за ${currentActiveDay} ще се запази и ще се дублира в ${targetDay})`;
+
+    if (confirm(`Сигурни ли сте, че искате да ${actionName} менюто от ${currentActiveDay} в ${targetDay}?${warning}`)) {
+      // Create deep copy of current day
+      const snapshot = JSON.parse(JSON.stringify(weeklyData[currentActiveDay] || menu));
+      snapshot.day = targetDay;
+      snapshot.date = getWeeklyDateForDay(targetDay);
+      weeklyData[targetDay] = snapshot;
+
+      if (isMove) {
+        // Reset current active day back to blank
+        const blankDay = JSON.parse(JSON.stringify(defaultMenu));
+        blankDay.day = currentActiveDay;
+        blankDay.date = getWeeklyDateForDay(currentActiveDay);
+        weeklyData[currentActiveDay] = blankDay;
+      }
+
+      localStorage.setItem('pizza_italia_weekly_menus', JSON.stringify(weeklyData));
+      // Automatically switch to the target day so user sees their dishes right away!
+      selectDay(targetDay, true);
+      alert(`✅ Менюто беше успешно ${isMove ? 'преместено' : 'копирано'} в ${targetDay}!`);
+    }
+    resetTransferSelects();
+  }
+
+  function resetTransferSelects() {
+    const m = document.getElementById('move-to-day');
+    const c = document.getElementById('copy-to-day');
+    const f = document.getElementById('copy-from-day');
+    if (m) m.value = '';
+    if (c) c.value = '';
+    if (f) f.value = '';
   }
 
   function copyMenuFromDay(sourceDay) {
@@ -1586,7 +1715,7 @@
       document.getElementById('cfg-date').value = menu.date || '';
     }
     if (document.getElementById('cfg-time')) {
-      document.getElementById('cfg-time').value = (menu.time !== undefined && menu.time !== null) ? menu.time : (defaultMenu.time || '11:30 – 15:30 ч.');
+      document.getElementById('cfg-time').value = (menu.time !== undefined && menu.time !== null) ? menu.time : (defaultMenu.time || '11:30 – 14:30 ч.');
     }
 
     ['soups', 'salads', 'mains', 'pizzas'].forEach(cat => {
@@ -1627,7 +1756,7 @@
   function renderPrintPreview() {
     const day = (menu.day !== undefined && menu.day !== null) ? menu.day : (document.getElementById('cfg-day') ? document.getElementById('cfg-day').value : 'Понеделник');
     const date = (menu.date !== undefined && menu.date !== null) ? menu.date : (document.getElementById('cfg-date') ? document.getElementById('cfg-date').value.trim() : '');
-    const time = (menu.time !== undefined && menu.time !== null) ? menu.time : (document.getElementById('cfg-time') ? document.getElementById('cfg-time').value : '11:30 – 15:30 ч.');
+    const time = (menu.time !== undefined && menu.time !== null) ? menu.time : (document.getElementById('cfg-time') ? document.getElementById('cfg-time').value : '11:30 – 14:30 ч.');
     
     // Construct badge: e.g. "Понеделник, 08.09.2026 • 11:30 – 15:30 ч." or "Понеделник • 11:30 – 15:30 ч."
     const dayAndDate = date ? `${day}, ${date}` : day;
@@ -1666,7 +1795,8 @@
   }
 
   function addItem(cat) {
-    menu[cat].push({ name: '', desc: '', grams: '350', price: '' });
+    const def = categoryDefaults[cat] || { grams: '350', price: '' };
+    menu[cat].push({ name: '', desc: '', grams: def.grams, price: def.price });
     saveMenuDataOnly();
     renderEditor();
     renderPrintPreview();
