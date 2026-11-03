@@ -1068,6 +1068,50 @@
     size: auto;
     margin: 0;
   }
+  /* Dish Tags & Badges */
+  .dish-tags-row {
+    display: flex;
+    gap: 6px;
+    margin: 4px 0 8px 0;
+  }
+  .tag-pill {
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #94a3b8;
+    border-radius: 12px;
+    padding: 3px 9px;
+    font-size: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+    user-select: none;
+  }
+  .tag-pill:hover {
+    border-color: rgba(255, 255, 255, 0.3);
+  }
+  .tag-pill.active-vege {
+    background: rgba(16, 185, 129, 0.2) !important;
+    border-color: #10b981 !important;
+    color: #34d399 !important;
+    box-shadow: 0 0 8px rgba(16, 185, 129, 0.3);
+  }
+  .tag-pill.active-spicy {
+    background: rgba(239, 68, 68, 0.2) !important;
+    border-color: #ef4444 !important;
+    color: #f87171 !important;
+    box-shadow: 0 0 8px rgba(239, 68, 68, 0.3);
+  }
+  .tag-pill.active-hit {
+    background: rgba(245, 158, 11, 0.2) !important;
+    border-color: #f59e0b !important;
+    color: #fbbf24 !important;
+    box-shadow: 0 0 8px rgba(245, 158, 11, 0.3);
+  }
+  .tag-badge-print {
+    font-size: 11px;
+    vertical-align: middle;
+    margin-left: 4px;
+  }
 </style>
 </head>
 <body>
@@ -1339,10 +1383,19 @@
 
   </div>
 
+  <!-- Datalists for Dish Autocomplete -->
+  <datalist id="datalist-soups"></datalist>
+  <datalist id="datalist-salads"></datalist>
+  <datalist id="datalist-mains"></datalist>
+  <datalist id="datalist-pizzas"></datalist>
+
   <!-- Bottom Floating Navigation -->
   <div class="bottom-bar">
-    <button class="btn-secondary" onclick="resetDefaults()">
+    <button class="btn-secondary" onclick="resetDefaults()" title="Зареди примерно меню">
       🔄 Пример
+    </button>
+    <button class="btn-secondary" style="background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); color: #fff; font-weight: 700; border: none;" onclick="exportStoryImage()" title="Генерирай готова вертикална снимка за Instagram Story или Facebook">
+      📸 Инстаграм Стори
     </button>
     <button class="btn-primary" onclick="triggerPrint()">
       🖨️ Принтирай
@@ -1351,6 +1404,117 @@
 
 <script>
   // Standard category weights & prices according to menu photo (fixed defaults, editable anytime)
+    // Autocomplete / Known Dishes Catalog
+  const knownDishes = {
+    soups: [
+      { name: 'Крем супа на деня', desc: 'С хрупкави домашни крутони' },
+      { name: 'Домашна пилешка супа', desc: 'С пресни зеленчуци, фиде и пресен магданоз' },
+      { name: 'Крем-супа от манатарки', desc: 'С хрупкави билкови крутони' },
+      { name: 'Таратор', desc: 'С пресни орехи, копър и чесън' },
+      { name: 'Телешко варено', desc: 'С пресни кореноплодни зеленчуци' },
+      { name: 'Леща чорба', desc: 'По традиционна рецепта' },
+      { name: 'Боб чорба', desc: 'С джоджен и сушени чушки' },
+      { name: 'Крем супа от тиква', desc: 'С печени тиквени семки' },
+      { name: 'Крем супа от броколи', desc: 'Със синьо сирене и крутони' }
+    ],
+    salads: [
+      { name: 'Шопска салата', desc: 'Домати, краставици, пресен пипер, сирене, лук' },
+      { name: 'Салата "Капрезе"', desc: 'Белени розови домати, прясна моцарела, босилеково песто' },
+      { name: 'Салата "Цезар" с хрупкаво пиле', desc: 'Айсберг, чери домати, пармезан, крутони и дресинг' },
+      { name: 'Овчарска салата', desc: 'Домати, краставици, гъби, шунка, яйце, кашкавал, сирене' },
+      { name: 'Гръцка салата', desc: 'Домати, краставици, червен лук, фета, маслини, риган' },
+      { name: 'Салата с рукола, чери и пармезан', desc: 'С балсамова редукция и кедрови ядки' },
+      { name: 'Зелена салата с риба тон', desc: 'Зелена салата, краставици, яйце, риба тон, лимонов дресинг' }
+    ],
+    mains: [
+      { name: 'Кашкавал с кори на плоча, домати и краставици', desc: '' },
+      { name: 'Свинско с картофи и грах', desc: '' },
+      { name: 'Пилешки бутчета с ориз', desc: '' },
+      { name: 'Пилешко филе четири сирена', desc: 'С гарнитура от печени картофи' },
+      { name: 'Свински врат на скара с печени картофи', desc: 'Сочен свински врат с подправки' },
+      { name: 'Спагети "Карбонара"', desc: 'Гуанчале, жълтъци, пекорино романо и черен пипер' },
+      { name: 'Лазаня "Болонезе"', desc: 'С домашно рагу, бешамел и пармезан' },
+      { name: 'Ризото с манатарки и пармезан', desc: 'Кремообразно ризото с пресни гъби' },
+      { name: 'Кюфтета по чирпански', desc: 'В ароматен доматен сос' },
+      { name: 'Мусака по домашна рецепта', desc: 'С кисело мляко' },
+      { name: 'Пиле с ориз по селски', desc: 'Печено на фурна с пресни билки' },
+      { name: 'Свинско със зеле на фурна', desc: 'Традиционно българско ястие' }
+    ],
+    pizzas: [
+      { name: 'Пицета с шунка и гъби', desc: 'доматен сос и моцарела' },
+      { name: 'Пица "Маргарита" Класик', desc: 'Доматен сос, прясна моцарела, босилек' },
+      { name: 'Пица "Капричоза"', desc: 'Прошуто кото, пресни печурки, артишок и маслини' },
+      { name: 'Пица "Диавола" (пикантна)', desc: 'Пикантен салам, моцарела и люти чушки' },
+      { name: 'Пица "Куатро Формаджи"', desc: 'Моцарела, горгонзола, пармезан, скаморца' },
+      { name: 'Пица "Прошуто Фунги"', desc: 'Доматен сос, моцарела, прошуто кото, пресни гъби' },
+      { name: 'Пица "Поло"', desc: 'Пилешко филе, топено сирене, царевица, моцарела' }
+    ]
+  };
+
+  function getDishesList(cat) {
+    let custom = [];
+    try {
+      const stored = JSON.parse(localStorage.getItem('pizza_italia_custom_dishes') || '{}');
+      if (stored[cat]) custom = stored[cat];
+    } catch(e) {}
+    const combined = [...(knownDishes[cat] || [])];
+    custom.forEach(cItem => {
+      if (!combined.some(it => it.name.toLowerCase() === cItem.name.toLowerCase())) {
+        combined.unshift(cItem);
+      }
+    });
+    return combined;
+  }
+
+  function learnDish(cat, name, desc) {
+    if (!name || name.trim().length < 3) return;
+    try {
+      let stored = JSON.parse(localStorage.getItem('pizza_italia_custom_dishes') || '{}');
+      if (!stored[cat]) stored[cat] = [];
+      const idx = stored[cat].findIndex(it => it.name.toLowerCase() === name.trim().toLowerCase());
+      if (idx >= 0) {
+        if (desc) stored[cat][idx].desc = desc;
+      } else {
+        stored[cat].unshift({ name: name.trim(), desc: desc || '' });
+      }
+      localStorage.setItem('pizza_italia_custom_dishes', JSON.stringify(stored));
+      populateDatalists();
+    } catch(e) {}
+  }
+
+  function populateDatalists() {
+    ['soups', 'salads', 'mains', 'pizzas'].forEach(cat => {
+      const dl = document.getElementById('datalist-' + cat);
+      if (dl) {
+        const list = getDishesList(cat);
+        dl.innerHTML = list.map(d => `<option value="${escapeHtml(d.name)}">`).join('');
+      }
+    });
+  }
+
+  function onDishNameInput(cat, idx, val) {
+    menu[cat][idx].name = val;
+    // Auto-fill description if exact match from known dishes
+    const match = getDishesList(cat).find(it => it.name.toLowerCase() === val.trim().toLowerCase());
+    if (match && match.desc && !menu[cat][idx].desc) {
+      menu[cat][idx].desc = match.desc;
+      const descInp = document.getElementById(`item-desc-${cat}-${idx}`);
+      if (descInp) descInp.value = match.desc;
+    }
+    learnDish(cat, val, menu[cat][idx].desc);
+    saveMenuDataOnly();
+    renderPrintPreview();
+  }
+
+  function toggleDishTag(cat, idx, tag) {
+    if (menu[cat] && menu[cat][idx]) {
+      menu[cat][idx].tag = (menu[cat][idx].tag === tag) ? '' : tag;
+      saveMenuDataOnly();
+      renderEditor();
+      renderPrintPreview();
+    }
+  }
+
   const categoryDefaults = {
     soups:  { grams: '400', price: '3.99' },
     salads: { grams: '250', price: '6.99' },
@@ -1726,15 +1890,24 @@
       }
       
       if (container && menu[cat]) {
+        populateDatalists();
         container.innerHTML = menu[cat].map((item, idx) => `
           <div class="dish-item">
             <div class="dish-top-row">
-              <input type="text" class="dish-name-input" value="${escapeHtml(item.name)}" 
-                placeholder="Име на ястието" onchange="updateItem('${cat}', ${idx}, 'name', this.value)">
+              <input type="text" class="dish-name-input" list="datalist-${cat}" value="${escapeHtml(item.name)}" 
+                placeholder="Име на ястието (или избери от списъка)" 
+                oninput="onDishNameInput('${cat}', ${idx}, this.value)" 
+                onchange="updateItem('${cat}', ${idx}, 'name', this.value); learnDish('${cat}', this.value, menu['${cat}'][${idx}].desc);">
               <button class="btn-remove" title="Изтрий" onclick="removeItem('${cat}', ${idx})">✕</button>
             </div>
-            <input type="text" class="dish-desc-input" value="${escapeHtml(item.desc || '')}" 
-                placeholder="Описание / съставки (напр. домати, моцарела...)" onchange="updateItem('${cat}', ${idx}, 'desc', this.value)">
+            <div class="dish-tags-row">
+              <button type="button" class="tag-pill ${item.tag === 'vege' ? 'active-vege' : ''}" onclick="toggleDishTag('${cat}', ${idx}, 'vege')">🌱 Веге</button>
+              <button type="button" class="tag-pill ${item.tag === 'spicy' ? 'active-spicy' : ''}" onclick="toggleDishTag('${cat}', ${idx}, 'spicy')">🌶️ Пикантно</button>
+              <button type="button" class="tag-pill ${item.tag === 'hit' ? 'active-hit' : ''}" onclick="toggleDishTag('${cat}', ${idx}, 'hit')">⭐ Топ ястие</button>
+            </div>
+            <input type="text" id="item-desc-${cat}-${idx}" class="dish-desc-input" value="${escapeHtml(item.desc || '')}" 
+                placeholder="Описание / съставки (напр. домати, моцарела...)" 
+                onchange="updateItem('${cat}', ${idx}, 'desc', this.value); learnDish('${cat}', menu['${cat}'][${idx}].name, this.value);">
             <div class="dish-bottom-row">
               <div class="input-with-unit">
                 <input type="text" value="${escapeHtml(item.grams)}" 
@@ -1770,11 +1943,17 @@
       const listEl = document.getElementById('print-' + cat + '-list');
       if (listEl && menu[cat]) {
         const validItems = menu[cat].filter(item => item.name && item.name.trim() !== '');
-        listEl.innerHTML = validItems.map(item => `
+        listEl.innerHTML = validItems.map(item => {
+          let tagBadge = '';
+          if (item.tag === 'vege') tagBadge = ' <span class="tag-badge-print" title="Вегетарианско">🌱</span>';
+          else if (item.tag === 'spicy') tagBadge = ' <span class="tag-badge-print" title="Пикантно">🌶️</span>';
+          else if (item.tag === 'hit') tagBadge = ' <span class="tag-badge-print" title="Препоръчано">⭐</span>';
+
+          return `
           <div style="margin-bottom: 3px;">
             <div class="menu-row">
               <div class="menu-left-part">
-                <span class="menu-item-name">${escapeHtml(item.name)}</span>
+                <span class="menu-item-name">${escapeHtml(item.name)}${tagBadge}</span>
                 ${item.grams ? `<span class="menu-item-grams">${escapeHtml(item.grams)} гр</span>` : ''}
               </div>
               <div class="menu-dots"></div>
@@ -1784,7 +1963,7 @@
             </div>
             ${item.desc ? `<div class="menu-desc-print">${escapeHtml(item.desc)}</div>` : ''}
           </div>
-        `).join('');
+        `; }).join('');
       }
     });
   }
@@ -1992,7 +2171,9 @@
             window.history.replaceState(null, null, window.location.pathname);
           }
 
-          selectDay(currentActiveDay, true);
+          
+
+  selectDay(currentActiveDay, true);
           setTab('preview');
           setTimeout(() => {
             alert('✅ Всички дни от седмицата бяха прехвърлени успешно! Можете да сменяте дните и да принтирате.');
@@ -2067,6 +2248,172 @@
       if (bar) bar.style.maxWidth = '480px';
       styleTag.innerHTML = '@media print { @page { size: A5 portrait; margin: 0; } }';
     }
+  }
+
+  // Export Instagram & Facebook Story Image (1080 x 1920 HD)
+  function exportStoryImage() {
+    syncInputsToMenu();
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = 1080;
+    canvas.height = 1920;
+    const ctx = canvas.getContext('2d');
+
+    // Background gradient (Dark luxury Italian pasteria theme)
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, 1920);
+    bgGrad.addColorStop(0, '#0c101c');
+    bgGrad.addColorStop(0.5, '#121829');
+    bgGrad.addColorStop(1, '#090d17');
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 1080, 1920);
+
+    // Decorative Borders
+    ctx.strokeStyle = '#c2410c';
+    ctx.lineWidth = 6;
+    ctx.strokeRect(36, 36, 1080 - 72, 1920 - 72);
+    
+    ctx.strokeStyle = '#f59e0b';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(48, 48, 1080 - 96, 1920 - 96);
+
+    // Italian tricolore top accent bar
+    const segW = (1080 - 96) / 3;
+    ctx.fillStyle = '#009246';
+    ctx.fillRect(48, 48, segW, 8);
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(48 + segW, 48, segW, 8);
+    ctx.fillStyle = '#ce2b37';
+    ctx.fillRect(48 + 2 * segW, 48, segW, 8);
+
+    // Header Texts
+    ctx.textAlign = 'center';
+    
+    ctx.font = 'bold 22px "Carlito", sans-serif';
+    ctx.fillStyle = '#f59e0b';
+    ctx.fillText('ТРАДИЦИОННА ИТАЛИАНСКА КУХНЯ', 540, 115);
+
+    ctx.font = '900 64px "Carlito", sans-serif';
+    ctx.fillStyle = '#ffffff';
+    ctx.fillText('PIZZA ITALIA', 540, 185);
+
+    ctx.font = '700 34px "Carlito", sans-serif';
+    ctx.fillStyle = '#ea580c';
+    ctx.fillText('ОБЕДНО МЕНЮ', 540, 235);
+
+    // Day & time badge
+    const day = menu.day || currentActiveDay;
+    const date = menu.date || '';
+    const time = menu.time || '11:30 – 14:30 ч.';
+    const badgeText = (date ? `${day}, ${date}` : day) + (time ? ` • ${time}` : '');
+
+    ctx.font = 'bold 24px "Carlito", sans-serif';
+    const badgeW = Math.min(840, ctx.measureText(badgeText).width + 60);
+    ctx.fillStyle = '#1e293b';
+    ctx.beginPath();
+    ctx.roundRect(540 - badgeW/2, 265, badgeW, 46, 23);
+    ctx.fill();
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1.5;
+    ctx.stroke();
+
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillText(badgeText, 540, 297);
+
+    // Render Categories
+    let currentY = 365;
+    const catTitles = {
+      soups: '🍲 СУПИ',
+      salads: '🥗 САЛАТИ',
+      mains: '🍝 ОСНОВНИ ЯСТИЯ',
+      pizzas: '🍕 ПИЦИ'
+    };
+
+    ['soups', 'salads', 'mains', 'pizzas'].forEach(cat => {
+      const items = (menu[cat] || []).filter(it => it.name && it.name.trim() !== '');
+      if (items.length === 0) return;
+
+      // Category Header Box
+      ctx.textAlign = 'center';
+      ctx.font = '900 30px "Carlito", sans-serif';
+      ctx.fillStyle = '#f59e0b';
+      ctx.fillText(catTitles[cat], 540, currentY);
+
+      // Category separator line
+      ctx.strokeStyle = 'rgba(245, 158, 11, 0.4)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(360, currentY + 12);
+      ctx.lineTo(720, currentY + 12);
+      ctx.stroke();
+
+      currentY += 45;
+
+      items.forEach(item => {
+        let tagStr = '';
+        if (item.tag === 'vege') tagStr = ' 🌱';
+        else if (item.tag === 'spicy') tagStr = ' 🌶️';
+        else if (item.tag === 'hit') tagStr = ' ⭐';
+
+        // Item Name (Left side: 90px to 740px)
+        ctx.textAlign = 'left';
+        ctx.font = 'bold 28px "Carlito", sans-serif';
+        ctx.fillStyle = '#ffffff';
+        const nameText = item.name + tagStr;
+        ctx.fillText(nameText, 90, currentY);
+
+        // Grams (Right column: 860px)
+        if (item.grams) {
+          ctx.textAlign = 'right';
+          ctx.font = 'italic 22px "Carlito", sans-serif';
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(item.grams + ' гр', 860, currentY);
+        }
+
+        // Price (Right column: 990px)
+        if (item.price) {
+          ctx.textAlign = 'right';
+          ctx.font = '900 28px "Carlito", sans-serif';
+          ctx.fillStyle = '#38bdf8';
+          ctx.fillText(item.price + ' €', 990, currentY);
+        }
+
+        // Description line below if present
+        if (item.desc) {
+          currentY += 26;
+          ctx.textAlign = 'left';
+          ctx.font = '20px "Carlito", sans-serif';
+          ctx.fillStyle = '#94a3b8';
+          ctx.fillText(item.desc, 92, currentY);
+        }
+
+        currentY += 46;
+      });
+
+      currentY += 20; // Space between categories
+    });
+
+    // Footer at bottom
+    ctx.textAlign = 'center';
+    ctx.font = 'bold 23px "Carlito", sans-serif';
+    ctx.fillStyle = '#f8fafc';
+    ctx.fillText('Пицария "Италия" • Петте кьошета, бул. "Ген. Скобелев" 46, София', 540, 1825);
+    ctx.font = '19px "Carlito", sans-serif';
+    ctx.fillStyle = '#94a3b8';
+    ctx.fillText('Всички ястия се приготвят на място с оригинални италиански продукти. • Добър апетит!', 540, 1858);
+
+    // Trigger Download
+    canvas.toBlob(blob => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const filename = `Pizza_Italia_Story_${day}_${(date || 'menu').replace(/[^0-9a-zA-Z]/g, '_')}.png`;
+      a.href = url;
+      a.download = filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      alert('📸 Снимката за Instagram / Facebook Стори беше генерирана и изтеглена успешно!');
+    }, 'image/png');
   }
 
   // Initialize with the current active day
